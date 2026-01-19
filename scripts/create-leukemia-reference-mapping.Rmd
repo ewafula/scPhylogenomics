@@ -1,0 +1,228 @@
+---
+title: "Leukemia reference cell typing"
+author: Eric Wafula
+date: 2025
+output:
+  html_notebook:
+    toc: true
+    toc_float: true
+---
+
+### Objective
+
+Creating as cell type annotation mapping file to utilize for the [cell-typing module](https://github.com/ewafula/scPhylogenomics/tree/main/analyses/cell-typing) of Leukemia datasets using [Single-cell Transcriptional Atlas of Human Hematopoiesis](https://aacrjournals.org/bloodcancerdiscov/article/6/4/307/763153/Single-cell-Transcriptional-Atlas-of-Human) the provided reference [symphony R object](https://bonemarrowmap.s3.us-east-2.amazonaws.com/BoneMarrowMap_Annotated_Dataset_expandedFeatures.rds)
+
+---
+
+### setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+set.seed(123)
+```
+---
+
+### Libraries
+
+```{r library}
+# Load libraries
+suppressPackageStartupMessages(library(Seurat))
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(symphony))
+suppressPackageStartupMessages(library(ggpubr))
+suppressPackageStartupMessages(library(patchwork))
+suppressPackageStartupMessages(library(RColorBrewer))
+suppressPackageStartupMessages(library(AUCell))
+suppressPackageStartupMessages(library(doMC))
+suppressPackageStartupMessages(library(BiocNeighbors))
+
+# Install BoneMarrowMap package only if not already installed
+if (!requireNamespace("BoneMarrowMap", quietly = TRUE)) {
+  invisible(
+    capture.output(
+      suppressMessages(
+        suppressWarnings(
+          devtools::install_github("andygxzeng/BoneMarrowMap", quiet = TRUE)
+        )
+      )
+    )
+  )
+  message("BoneMarrowMap installed successfully")
+} else {
+  message("BoneMarrowMap is already installed. Skipping installation.")
+}
+suppressPackageStartupMessages(library(BoneMarrowMap))
+```
+
+### Download bone marrow leukemia cell atlas reference objects
+
+```{r download-data}
+# Set directory to store projection reference files
+projection_path = file.path("..", "analyses", "cell-typing", "inputs")
+
+# Make sure directory exists
+if (!dir.exists(projection_path)) {
+  dir.create(projection_path, recursive = TRUE)
+}
+
+# Paths for the three reference files
+bm_ref_symphony_file <- file.path(projection_path, "BoneMarrowMap_SymphonyReference.rds")
+bm_uwot_file <- file.path(projection_path, "BoneMarrowMap_uwot_model.uwot")
+
+
+# Download Symphony Reference if not already present (~344 Mb) - for mapping
+if (!file.exists(bm_ref_symphony_file)) {
+  message("Downloading Symphony Reference...")
+  curl::curl_download(
+    "https://bonemarrowmap.s3.us-east-2.amazonaws.com/BoneMarrowMap_SymphonyReference.rds",
+    destfile = bm_ref_symphony_file,
+    quiet = FALSE
+  )
+} else {
+  message("Symphony Reference already exists. Skipping download.")
+}
+
+# Download uwot model file if not already present (~221 Mb) - for UMAP projection
+if (!file.exists(bm_uwot_file)) {
+  message("Downloading uwot model file...")
+  ccurl::curl_download(
+    "https://bonemarrowmap.s3.us-east-2.amazonaws.com/BoneMarrowMap_uwot_model.uwot", 
+    destfile = bm_uwot_file,
+    quiet = FALSE
+  )
+} else {
+  message("uwot model file already exists. Skipping download.")
+}
+
+# Load Symphony reference object (for mapping)
+ref <- readRDS(bm_ref_symphony_file)
+
+# Set uwot path for UMAP projection
+ref$save_uwot_path <- bm_uwot_file
+```
+
+
+### Visualize bone marrow leukemia reference cell altlas cell types
+
+We are interested in broad cell type annotations
+- for granular cell type annotations use `group.by = 'CellType_Annotation_formatted' `
+
+```{r ref-cell-types, fig.width=10, fig.height=6}
+# plot reference hematopoietic cell types 
+ReferenceSeuratObj <-  BoneMarrowMap::create_ReferenceObject(ref)
+Seurat::DimPlot(ReferenceSeuratObj, reduction = 'umap', group.by = 'CellType_Broad', 
+                raster=FALSE, label=TRUE, label.size = 4, repel = TRUE)
+```
+
+### Load leukemia (AML) scRNA-Seq query dataset
+
+```{r load-query}
+# create seurat object
+seurat_object_path = file.path("..", "analyses", "cell-typing", "objects", 
+                               "AML", "AML-clusters.rds")
+query <- readRDS(seurat_object_path)
+query
+```
+
+### Map the AML query dataset to the leukemia reference cell atlas
+
+```{r map-query}
+# batch variable to correct in the query data, set as NULL if no batches in query
+batchvar <- NULL
+
+# Map query dataset using Symphony
+query_mapped <- BoneMarrowMap::map_Query(
+  exp_query = query@assays$RNA$counts,
+  metadata_query = query@meta.data,
+  ref_obj = ref,
+  vars = batchvar,
+  verbose = TRUE,
+  do_normalize = TRUE,
+  do_umap = TRUE
+)
+
+```
+
+### Perform quality check for the query mapping
+
+The distribution of mapping error scores can vary broadly from sample to sample. In this context, we will want to threshold outliers with high mapping error on a per-sample basis. Typically, a threshold of 2, 2.5, or 3 MADs MADs (Median Absolute Deviations), which are often used for QC filtering in single-cell (and bulk) RNA-seq pipelines, works well.
+
+In some cases where sequencing depth is very low (e.g. older datasets from first-generation scRNA-seq protocols), a more stringent threshold of even 1.5 may be warranted to eliminate cells with low mapping quality
+```{r qc-plots,  fig.width=11, fig.height=7}
+# Run QC based on mapping error score, flag cells with mapping error >= 2.5 MADs above median
+query_mapped <- query_mapped %>%
+  BoneMarrowMap::calculate_MappingError(., reference = ref, MAD_threshold = 2.5)
+
+# # Plot distribution by patient to ensure you are catching the tail
+query_mapped@meta.data %>%
+  ggplot(aes(x = mapping_error_score, fill = mapping_error_QC)) +
+  geom_histogram(bins = 200)
+
+# Get QC Plots
+QC_plots <- plot_MappingErrorQC(query_mapped)
+
+# Plot together - If this is too crowded,
+patchwork::wrap_plots(QC_plots, ncol = 2, widths = c(0.8, 0.3, 0.8, 0.3))
+```
+This important step identifies a subset of cells with high mapping error from the query dataset that are either:
+
+not present within the reference, or
+have poor QC metrics (low RNA counts and low transcriptional diversity)
+Sometimes, low quality cells may erroneously map to the orthochromatic erythroblast region as this cell type has very low transcriptional diversity. These low quality query cells do not have hemoglobin expression and are in fact mis-mapped; they will be flagged by the QC filter and excluded from cell type assignments.
+
+Please adjust the MAD_threshold (typically between 1 and 3) based on the distribution of your dataset to identify the outliers with low quality and high mapping error scores. This will improve your classifications and any downstream composition analysis
+
+Please adjust the MAD_threshold (typically between 1 and 3) based on the distribution of your dataset to identify the outliers with low quality and high mapping error scores. This will improve your classifications and any downstream composition analysis.The MAD threshold determines how aggressively outlier cells are filtered. Lower thresholds (e.g., 1–2 MADs) remove more cells and are appropriate for noisy or variable datasets where mis-mapping is common. Higher thresholds (e.g., 2.5–3 MADs) are more conservative, retaining most cells and excluding only extreme outliers, which is preferable for high-quality datasets. We recommend inspecting the QC metric distributions (e.g., gene counts, hemoglobin expression, mapping error scores) and starting with 2.5 MADs, then adjusting downwards if clear low-quality populations remain.
+
+### Assign cell types to the query dataset
+
+Use a KNN classifier to assign cell identity based on the 30 K-Nearest Neighbours from the reference map. Broader cell type labels will also be transferred automatically along with the precise cell type labels.
+- for granular cell type annotations use `group.by = 'predicted_CellType'` 
+
+```{r cell-assign}
+# Predict hematopoietic cell types by KNN classification
+query_annotated <- BoneMarrowMap::predict_CellTypes(
+  query_obj = query_mapped, 
+  ref_obj = ref, 
+  initial_label = 'initial_CellType', # celltype assignments before filtering on mapping QC
+  final_label = 'predicted_CellType',  # celltype assignments with map QC failing cells assigned as NA
+  include_broad = TRUE
+) 
+
+# Replace NA annotations with "Unknown"
+query_annotated@meta.data$predicted_CellType_Broad <- ifelse(
+  is.na(query_annotated@meta.data$predicted_CellType_Broad),
+  "Unknown",
+  query_annotated@meta.data$predicted_CellType_Broad
+)
+
+# Double-check unique labels
+unique(query_annotated@meta.data$predicted_CellType_Broad)
+```
+
+### Visualize AML reference cell type assignments 
+
+- exclude outlier cells with high mapping error i.e., `Low-quality`
+
+```{r query-cell-types, fig.width=10, fig.height=6}
+DimPlot(subset(query_annotated, mapping_error_QC == 'Pass'), 
+        reduction = 'umap_projected', group.by = 'predicted_CellType_Broad', 
+        raster=FALSE, label=TRUE, label.size = 4, repel = TRUE)
+```
+
+
+### Genrate cell type mappings
+
+```{r cell-type-map}
+query_annotated@meta.data %>% dplyr::select(cell_id, predicted_CellType_Broad) %>% 
+  dplyr::rename(cell_type = predicted_CellType_Broad) %>% 
+  readr::write_tsv(file.path(projection_path, "AML-LE1-cell-annotation.tsv.gz"))
+```
+
+### Session Info
+
+Record session info for reproducibility & provenance purposes.
+
+```{r sessioninfo}
+sessionInfo()
+```

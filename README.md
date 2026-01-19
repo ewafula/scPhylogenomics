@@ -1,22 +1,34 @@
 # scPhylogenomics
 
 ## Overview
-scPhylogenomics is a fully modular, scalable, and reproducible computational workflow for `single-cell RNA sequencing (scRNA-Seq)-based phylogenomics`. The workflow addresses key analytical stages, from high-throughput data preprocessing (ambient RNA removal, doublet/multiplet exclusion, and mitochondrial quality control) through sample integration and reference-assisted cell-type annotation, to ploidy inference that stratifies malignant from non-malignant cells. Leveraging a streamlined somatic SNV calling approach restricted to tumor cell barcodes, the workflow summarizes variant profiles. It automates the construction of mutation matrices and multiple sequence alignments suitable for downstream evolutionary inference. Finally, robust phylogenetic and clonal population structure reconstruction is achieved by integrating tree-building (FastTree/IQ-TREE) with weighted non-negative matrix factorization (WNMF)-based clonal clustering, producing visualizations and metrics for tumor heterogeneity and clonal evolution. The presented pipeline emphasizes automation, reproducibility, multi-project compatibility, and direct adaptability to high-performance and cloud computing environments, thus addressing key needs in modern single-cell cancer phylogenomics and computational oncology.
+**scPhylogenomics** is a fully modular, scalable, and reproducible computational workflow designed for `single-cell RNA sequencing (scRNA-Seq)-based phylogenomics`. The workflow streamlines the analysis of tumor heterogeneity through five continuous, automated modules:
+
+1. **[Data Preprocessing](https://github.com/ewafula/scPhylogenomics_Dev/tree/main/analyses//data-preprocessing):** Automates high-throughput quality control by removing ambient RNA ([SoupX](https://academic.oup.com/gigascience/article/9/12/giaa151/6049831)), excluding doublets/multiplets ([DoubletFinder](https://www.sciencedirect.com/science/article/pii/S2405471219300730)), and filtering low-quality cells based on mitochondrial content ([miQC](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009290)).
+
+2. **[Cell Typing](https://github.com/ewafula/scPhylogenomics_Dev/tree/main/analyses/cell-typing):** Consolidates samples via merging or integration ([Seurat](https://www.nature.com/articles/s41587-023-01767-y)) and performs reference-assisted cell-type annotation ([SingleR](https://www.nature.com/articles/s41590-018-0276-y)) to isolate specific cell lineages.
+
+3. **[Ploidy Inference](https://github.com/ewafula/scPhylogenomics_Dev/tree/main/analyses/ploidy-inference)**: Stratifies malignant from non-malignant cells by detecting genome-wide aneuploidy and Copy Number Variations (CNVs) using [copykat R package](https://github.com/navinlabcode/copykat), enabling tumor-specific downstream analysis.
+
+4. **[SNV Calling](https://github.com/ewafula/scPhylogenomics_Dev/tree/main/analyses/snv-calling):** Characterizes somatic variants at single-cell resolution using [cellsnp-lite](https://academic.oup.com/bioinformatics/article/37/23/4569/6272512). This module generates genotype matrices and pseudo-multiple sequence alignments (MSAs), featuring optional filtering for RNA editing sites and Panels of Normals (PoN) to ensure high-confidence variant profiles.
+
+5. **[Phylogeny Inference](https://github.com/ewafula/scPhylogenomics_Dev/tree/main/analyses/ploidy-inference):** Reconstructs evolutionary histories by integrating `maximum-likelihood` tree building ([FastTree](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0009490) or [IQ-TREE](https://ecoevorxiv.org/repository/view/8916/)) with advanced clonal population clustering. The workflow offers a unified interface for clonal resolution, allowing users to choose between a `Deep Learning Variational Autoencoder (VAE)` approach ([SNPmanifold](https://pmc.ncbi.nlm.nih.gov/articles/PMC12465888/)) or a `Hybrid Hierarchical Weighted Non-Negative Matrix Factorization (WNMF)` algorithm.
+
+
 
 ## Data description 
 
 ### Study data 
 
-##### CopyKAT
+##### Triple Negative Breast Cancer (TNBC) dataset
 Single-cell transcriptomic data for human tumors from the [CopyKAT](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE148673) (Copy number Karyotyping of Aneuploid Tumors) methodology development study to distinguish normal cell types in the tumor microenvironment from malignant cells and to resolve clonal substructure within the tumor utilizing cell copy number profiles. 
 
-- TNBC5 sample from an individual with `triple-negative breast cancer (TNBC)`
+- TNBC5 sample from an individual with `triple negative breast cancer (TNBC)`
 
 ##### Acute Myeloid Leukemia (AML) dataset
 **Pending:**
- Need brief description of the AML dataset for sample `Le1` 
+ Need brief description of the AML dataset for sample `LE1` 
 
- - Le1 sample from an individual with `acute myeloid leukemia (AML)`
+ - LE1 sample from an individual with `acute myeloid leukemia (AML)`
  
 ### Processing raw sequence data
 We provide a [script](scripts/run-cellranger-count.sh) to process scRNA-Seq data using the [Cell Ranger Count pipeline](https://www.10xgenomics.com/support/software/cell-ranger/latest/tutorials/cr-tutorial-ct), developed by 10x Genomics to transforms raw sequencing reads (FASTQ files) into a structured gene expression matrix suitable for downstream analysis. The pipeline aligns sample sequencing reads in FASTQ files to a reference transcriptome, and performs filtering, barcode counting, and UMI counting to generate raw and filtered feature-barcode matrix and position-sorted read alignments. The resulting sample output data is stored in the scPhylogenomics projects data directory (see directory tree structure below).
@@ -29,13 +41,19 @@ bash run-cellranger-count.sh
 Usage: run-cellranger-count.sh <PROJECT_NAME> <SAMPLE SHEET> <REFERENCE DATA DIR>
 
 cd sPhylogenomics/scripts/
-bash  run-cellranger-count.sh CopyKAT sample_sheet.tsv ../data/refdata
+bash  run-cellranger-count.sh AML sample_sheet.tsv ../data/refdata
+bash  run-cellranger-count.sh TNBC sample_sheet.tsv ../data/refdata
 ```
 
-##### Example sample sheet (tab-separated):
+##### Example sample sheets (tab-separated):
+**AML dataset**
 |sample_name|path_to_sample_fastq_dir    |
 |:----------|:---------------------------|
-|Le1      | /path/to/sample/fastq/dir/ |
+|LE1      | /path/to/sample/fastq/dir/ |
+
+**TNBC dataset**
+|sample_name|path_to_sample_fastq_dir    |
+|:----------|:---------------------------|
 |TNBC5      | /path/to/sample/fastq/dir/ |
 
 ##### Example ouput: 
@@ -43,7 +61,7 @@ bash  run-cellranger-count.sh CopyKAT sample_sheet.tsv ../data/refdata
 .
 ├── data
     ├── projects
-    |   └── CopyKAT (project name)
+    |   └── TNBC (project name)
     |   |   ├── TNBC5 (sample name)
     |   |        ├── outs
     |   |            ├── analysis
@@ -59,7 +77,7 @@ bash  run-cellranger-count.sh CopyKAT sample_sheet.tsv ../data/refdata
     |   |            └── web_summary.html`  
     |   |
     |   └── AML (project name)
-    |       ├── Le1 (sample name)
+    |       ├── LE1 (sample name)
     |           ├── outs
     |               ├── analysis
     |               ├── cloupe.cloupe
@@ -172,7 +190,7 @@ Analyses are run using `singularity exec` while binding your local `scPhylogenom
 
 Here are a few examples of module analyses:
 
-###### data-preprocessing module
+###### data-preprocessing module (using the module wrapper bash script)
 
 ```bash
 cd analyses/data-preprocessing/
@@ -184,7 +202,7 @@ singularity exec \
   bash run-data-preprocessing.sh
 ```
 
-###### cell-typing module
+###### cell-typing module (using specific module scripts)
 
 ```bash
 cd analyses/cell-typing/
@@ -201,10 +219,10 @@ singularity exec \
   --pwd /home/rstudio/scPhylogenomics/analyses/cell-typing \
   ../../images/scphylogenomics.sif \
   Rscript --vanilla 02-annotate-cell-types.R \
-    --project AML --assay RNA --annot_method mapping --ref_data inputs/AML-Le1-cell-annotation.tsv.gz
+    --project AML --assay RNA --annot_method mapping --ref_data inputs/AML-LE1-cell-annotation.tsv.gz
 ```
 
-###### ploidy-inference module
+###### ploidy-inference module (using specific module scripts)
 
 ```bash
 cd analyses/ploidy-inference/
@@ -217,7 +235,7 @@ singularity exec \
     --project AML --annot_object AML-mapping-annotations.rds --nthreads 30
 ```
 
-###### snv-calling module
+###### snv-calling module (using specific module script)
 
 ```bash
 cd analyses/snv-calling/
@@ -232,16 +250,16 @@ singularity exec \
   --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/snv-calling \
   ../../images/scphylogenomics.sif \
-  python 02-snv-calling.py --project AML --num_threads 30
+  python 02-snv-calling.py --project AML --num_threads 16
   
  singularity exec \
   --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/snv-calling \
   ../../images/scphylogenomics.sif \
-  Rscript --vanilla 03-summarize-sample-snv-calls.R --project AML --sample Le1 --cell_type all-cell-types 
+  python 03-generate-snp-msa.py --project AML --min_cells_per_snp 0.015 --min_snps_per_cell 0.05
 ```
 
-###### phylogeny-inference module
+###### phylogeny-inference module (using specific module script)
 
 ```bash
 cd analyses/phylogeny-inference/
@@ -250,25 +268,25 @@ singularity exec \
   --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/phylogeny-inference \
   ../../images/scphylogenomics.sif \
-  python3 01-phylogeny-inference.py --project AML --gap_site_thresh 0.995 --gap_seq_thresh 0.985 --method iqtree --keep_temp
+  python3 01-phylogeny-inference.py --project AML --sample LE1 -cell_type all-cell-types --method iqtree --threads 16
   
 singularity exec \
   --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/phylogeny-inference \
   ../../images/scphylogenomics.sif \
-  python3 02-wnmf-clonal-clustering.py --project AML --threads 30 --snv_threshold 0.05 --cell_threshold 0.05 --min_k 2 --min_k 10
+  python3 02-filter-variants.py --project AML --sample LE1 --cell_type all-cell-types
   
 singularity exec \
   --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/phylogeny-inference \
   ../../images/scphylogenomics.sif \
-  python3 02-wnmf-clonal-clustering.py --project AML --threads 30 --snv_threshold 0.05 --cell_threshold 0.05 --force_k 3  
+  python3 03-snp-clustering.py --project AML --sample LE1 --cell_type all-cell-types --method manifold -max_cluster 3 --final  
   
 singularity exec \
   --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/phylogeny-inference \
   ../../images/scphylogenomics.sif \
-  Rscript --vanilla 03-infer-clonal-phylogeny.R --project AML --rescale --percentile_outlier 0.99 --annot_type Clone
+  Rscript 04-infer-clonal-phylogeny.R --project AML -refseq --rescale --percentile_outlier 0.99 --annot_type Clone
 ```
 
 ##### 4). Optional: Interactive use with Singularity shell
@@ -291,3 +309,4 @@ You can then run module scripts, R, Python, or bash commands interactively. Chan
 
 ## License
 scPhylogenomics is distributed under the GNU GPL v3. For more information, see [license(LICENSE)
+
