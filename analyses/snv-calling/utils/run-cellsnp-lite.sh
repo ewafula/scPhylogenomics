@@ -46,12 +46,21 @@ PON_FILE=${9:-""}
 ###############################################
 # Environment setup
 ###############################################
-CONDA_ENV=$HOME/miniconda3
+# Check for Docker path first, then fall back to local home path
+if [ -d "/opt/conda" ]; then
+    CONDA_BASE="/opt/conda"
+elif [ -d "$HOME/miniconda3" ]; then
+    CONDA_BASE="$HOME/miniconda3"
+else
+    echo "Error: Could not find miniconda3 in /opt/conda or $HOME/miniconda3"
+    exit 1
+fi
+
 SCRATCH=../../scratch/cellsnp/$PROJECT/$SAMPLE
 mkdir -p $SCRATCH
 
 # Conda activation
-source $CONDA_ENV/bin/activate cellsnp_env
+source "$CONDA_BASE/bin/activate" cellsnp_env
 
 printf "\n Working on $PROJECT $SAMPLE $CELL_TYPE cells...\n"
 
