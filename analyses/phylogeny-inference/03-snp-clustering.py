@@ -20,9 +20,15 @@ except ImportError as e:
     sys.exit(1)
 
 # --- CONFIGURATION ---
-# Path to the Python executable inside the snpmanifold_env
-# UPDATE THIS PATH if your environment location is different
-CONDA_ENV_PYTHON = os.path.expanduser("~/miniconda3/envs/snpmanifold_env/bin/python")
+
+# Detect environment location (Docker vs Local)
+if os.path.exists("/opt/conda/envs/snpmanifold_env/bin/python"):
+    CONDA_ENV_PYTHON = "/opt/conda/envs/snpmanifold_env/bin/python"
+elif os.path.exists(os.path.expanduser("~/miniconda3/envs/snpmanifold_env/bin/python")):
+    CONDA_ENV_PYTHON = os.path.expanduser("~/miniconda3/envs/snpmanifold_env/bin/python")
+else:
+    print("Error: Could not locate snpmanifold_env python executable.")
+    sys.exit(1)
 
 # Paths relative to analyses/phylogeny-inference/
 SCRATCH_DIR = Path("../../scratch")

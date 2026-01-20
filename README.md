@@ -180,7 +180,7 @@ Download the Singularity image (`.sif`) file from DockerHub. It is recommended t
 ```bash
 mkdir -p images
 cd images/
-singularity pull images/scphylogenomics.sif docker://ewafula/scphylogenomics:latest
+singularity pull scphylogenomics.sif docker://ewafula/scphylogenomics:latest
 cd ../
 ```
 
