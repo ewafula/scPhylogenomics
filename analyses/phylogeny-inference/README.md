@@ -33,71 +33,112 @@ Illustration of module directory structure using 10x scRNA-Seq dataset from the 
 |-- utils
 |   |-- csp_utils.py
 |   |-- hierarchical_utils.py
+|   |-- __init__.py
 |   `-- manifold_utils.py
-|-- plots
-|   |-- AML
-|   |   |-- LE1.all-cell-types.clusters.hierarchical.png
-|   |   |-- LE1.all-cell-types.clusters.manifold.png
-|   |   |-- LE1.all-cell-types.fasttree.hierarchical.clonal_tree.png
-|   |   |-- LE1.all-cell-types.fasttree.hierarchical.lineage_tree.png
-|   |   |-- LE1.all-cell-types.fasttree.hierarchical.ploidy_tree.png
-|   |   |-- LE1.all-cell-types.fasttree.manifold.clonal_tree.png
-|   |   |-- LE1.all-cell-types.fasttree.manifold.lineage_tree.png
-|   |   |-- LE1.all-cell-types.fasttree.manifold.ploidy_tree.png
-|   |   |-- LE1.all-cell-types.iqtree.hierarchical.clonal_tree.png
-|   |   |-- LE1.all-cell-types.iqtree.hierarchical.lineage_tree.png
-|   |   |-- LE1.all-cell-types.iqtree.hierarchical.ploidy_tree.png
-|   |   |-- LE1.all-cell-types.iqtree.manifold.clonal_tree.png
-|   |   |-- LE1.all-cell-types.iqtree.manifold.lineage_tree.png
-|   |   |-- LE1.all-cell-types.iqtree.manifold.ploidy_tree.png
-|   |   |-- LE1.all-cell-types.scatter.2d.manifold.png
-|   |   `-- LE1.all-cell-types.scatter.3d.manifold.png
-|   `-- TNBC
-|       |-- TNBC5.select-cell-types.clusters.hierarchical.png
-|       |-- TNBC5.select-cell-types.clusters.manifold.png
-|       |-- TNBC5.select-cell-types.fasttree.hierarchical.clonal_tree.png
-|       |-- TNBC5.select-cell-types.fasttree.manifold.clonal_tree.png
-|       |-- TNBC5.select-cell-types.iqtree.hierarchical.clonal_tree.png
-|       |-- TNBC5.select-cell-types.iqtree.manifold.clonal_tree.png
-|       `-- TNBC5.select-cell-types.scatter.2d.manifold.png
-|-- results
-    |-- AML
-    |   |-- LE1.all-cell-types.cellSNP.base.vcf.gz
-    |   |-- LE1.all-cell-types.cellSNP.samples.tsv.gz
-    |   |-- LE1.all-cell-types.cellSNP.tag.AD.mtx.gz
-    |   |-- LE1.all-cell-types.cellSNP.tag.DP.mtx.gz
-    |   |-- LE1.all-cell-types.cellSNP.tag.OTH.mtx.gz
-    |   |-- LE1.all-cell-types.clones.hierarchical.tsv.gz
-    |   |-- LE1.all-cell-types.clones.manifold.tsv.gz
-    |   |-- LE1.all-cell-types.fasttree.hierarchical.clonal.treefile
-    |   |-- LE1.all-cell-types.fasttree.hierarchical.lineage.treefile
-    |   |-- LE1.all-cell-types.fasttree.hierarchical.ploidy.treefile
-    |   |-- LE1.all-cell-types.fasttree.manifold.clonal.treefile
-    |   |-- LE1.all-cell-types.fasttree.manifold.lineage.treefile
-    |   |-- LE1.all-cell-types.fasttree.manifold.ploidy.treefile
-    |   |-- LE1.all-cell-types.fasttree.tree
-    |   |-- LE1.all-cell-types.iqtree.hierarchical.clonal.treefile
-    |   |-- LE1.all-cell-types.iqtree.hierarchical.lineage.treefile
-    |   |-- LE1.all-cell-types.iqtree.hierarchical.ploidy.treefile
-    |   |-- LE1.all-cell-types.iqtree.manifold.clonal.treefile
-    |   |-- LE1.all-cell-types.iqtree.manifold.lineage.treefile
-    |   |-- LE1.all-cell-types.iqtree.manifold.ploidy.treefile
-    |   `-- LE1.all-cell-types.iqtree.tree
-    `-- TNBC
-        |-- cell_barcodes_SNPmanifold_clusters.tsv.gz
-        |-- TNBC5.select-cell-types.cellSNP.base.vcf.gz
-        |-- TNBC5.select-cell-types.cellSNP.samples.tsv.gz
-        |-- TNBC5.select-cell-types.cellSNP.tag.AD.mtx.gz
-        |-- TNBC5.select-cell-types.cellSNP.tag.DP.mtx.gz
-        |-- TNBC5.select-cell-types.cellSNP.tag.OTH.mtx.gz
-        |-- TNBC5.select-cell-types.clones.hierarchical.tsv.gz
-        |-- TNBC5.select-cell-types.clones.manifold.tsv.gz
-        |-- TNBC5.select-cell-types.fasttree.hierarchical.clonal.treefile
-        |-- TNBC5.select-cell-types.fasttree.manifold.clonal.treefile
-        |-- TNBC5.select-cell-types.fasttree.tree
-        |-- TNBC5.select-cell-types.iqtree.hierarchical.clonal.treefile
-        |-- TNBC5.select-cell-types.iqtree.manifold.clonal.treefile
-        `-- TNBC5.select-cell-types.iqtree.tree
+├── plots
+│   ├── AML
+│   │   ├── LE1.all-cell-types.clusters.hierarchical.png
+│   │   ├── LE1.all-cell-types.clusters.manifold.png
+│   │   ├── LE1.all-cell-types.fasttree.hierarchical.clonal_tree.png
+│   │   ├── LE1.all-cell-types.fasttree.hierarchical.lineage_tree.png
+│   │   ├── LE1.all-cell-types.fasttree.hierarchical.ploidy_tree.png
+│   │   ├── LE1.all-cell-types.fasttree.manifold.clonal_tree.png
+│   │   ├── LE1.all-cell-types.fasttree.manifold.lineage_tree.png
+│   │   ├── LE1.all-cell-types.fasttree.manifold.ploidy_tree.png
+│   │   ├── LE1.all-cell-types.iqtree.hierarchical.clonal_tree.png
+│   │   ├── LE1.all-cell-types.iqtree.hierarchical.lineage_tree.png
+│   │   ├── LE1.all-cell-types.iqtree.hierarchical.ploidy_tree.png
+│   │   ├── LE1.all-cell-types.iqtree.manifold.clonal_tree.png
+│   │   ├── LE1.all-cell-types.iqtree.manifold.lineage_tree.png
+│   │   ├── LE1.all-cell-types.iqtree.manifold.ploidy_tree.png
+│   │   ├── LE1.all-cell-types.scatter.2d.manifold.png
+│   │   └── LE1.all-cell-types.scatter.3d.manifold.png
+│   ├── SPECTRUM
+│   │   ├── MERGED.Ovarian-cancer.clusters.hierarchical.png
+│   │   ├── MERGED.Ovarian-cancer.clusters.manifold.png
+│   │   ├── MERGED.Ovarian-cancer.fasttree.hierarchical.clonal_tree.png
+│   │   ├── MERGED.Ovarian-cancer.fasttree.hierarchical.sample_tree.png
+│   │   ├── MERGED.Ovarian-cancer.fasttree.manifold.clonal_tree.png
+│   │   ├── MERGED.Ovarian-cancer.fasttree.manifold.sample_tree.png
+│   │   ├── MERGED.Ovarian-cancer.iqtree.hierarchical.clonal_tree.png
+│   │   ├── MERGED.Ovarian-cancer.iqtree.hierarchical.sample_tree.png
+│   │   ├── MERGED.Ovarian-cancer.iqtree.manifold.clonal_tree.png
+│   │   ├── MERGED.Ovarian-cancer.iqtree.manifold.sample_tree.png
+│   │   ├── MERGED.Ovarian-cancer.scatter.2d.manifold.png
+│   │   └── MERGED.Ovarian-cancer.scatter.3d.manifold.png
+│   └── TNBC
+│       ├── TNBC5.select-cell-types.clusters.hierarchical.png
+│       ├── TNBC5.select-cell-types.clusters.manifold.png
+│       ├── TNBC5.select-cell-types.fasttree.hierarchical.clonal_tree.png
+│       ├── TNBC5.select-cell-types.fasttree.hierarchical.lineage_tree.png
+│       ├── TNBC5.select-cell-types.fasttree.manifold.clonal_tree.png
+│       ├── TNBC5.select-cell-types.fasttree.manifold.lineage_tree.png
+│       ├── TNBC5.select-cell-types.iqtree.hierarchical.clonal_tree.png
+│       ├── TNBC5.select-cell-types.iqtree.hierarchical.lineage_tree.png
+│       ├── TNBC5.select-cell-types.iqtree.manifold.clonal_tree.png
+│       ├── TNBC5.select-cell-types.iqtree.manifold.lineage_tree.png
+│       ├── TNBC5.select-cell-types.scatter.2d.manifold.png
+│       └── TNBC5.select-cell-types.scatter.3d.manifold.png
+├── results
+    ├── AML
+    │   ├── LE1.all-cell-types.cellSNP.base.vcf.gz
+    │   ├── LE1.all-cell-types.cellSNP.samples.tsv.gz
+    │   ├── LE1.all-cell-types.cellSNP.tag.AD.mtx.gz
+    │   ├── LE1.all-cell-types.cellSNP.tag.DP.mtx.gz
+    │   ├── LE1.all-cell-types.cellSNP.tag.OTH.mtx.gz
+    │   ├── LE1.all-cell-types.clones.hierarchical.tsv.gz
+    │   ├── LE1.all-cell-types.clones.manifold.tsv.gz
+    │   ├── LE1.all-cell-types.fasttree.hierarchical.clonal.treefile
+    │   ├── LE1.all-cell-types.fasttree.hierarchical.lineage.treefile
+    │   ├── LE1.all-cell-types.fasttree.hierarchical.ploidy.treefile
+    │   ├── LE1.all-cell-types.fasttree.manifold.clonal.treefile
+    │   ├── LE1.all-cell-types.fasttree.manifold.lineage.treefile
+    │   ├── LE1.all-cell-types.fasttree.manifold.ploidy.treefile
+    │   ├── LE1.all-cell-types.fasttree.tree
+    │   ├── LE1.all-cell-types.iqtree.hierarchical.clonal.treefile
+    │   ├── LE1.all-cell-types.iqtree.hierarchical.lineage.treefile
+    │   ├── LE1.all-cell-types.iqtree.hierarchical.ploidy.treefile
+    │   ├── LE1.all-cell-types.iqtree.manifold.clonal.treefile
+    │   ├── LE1.all-cell-types.iqtree.manifold.lineage.treefile
+    │   ├── LE1.all-cell-types.iqtree.manifold.ploidy.treefile
+    │   └── LE1.all-cell-types.iqtree.tree
+    ├── SPECTRUM
+    │   ├── MERGED.Ovarian-cancer.cellSNP.base.vcf.gz
+    │   ├── MERGED.Ovarian-cancer.cellSNP.samples.tsv.gz
+    │   ├── MERGED.Ovarian-cancer.cellSNP.tag.AD.mtx.gz
+    │   ├── MERGED.Ovarian-cancer.cellSNP.tag.DP.mtx.gz
+    │   ├── MERGED.Ovarian-cancer.cellSNP.tag.OTH.mtx.gz
+    │   ├── MERGED.Ovarian-cancer.clones.hierarchical.tsv.gz
+    │   ├── MERGED.Ovarian-cancer.clones.manifold.tsv.gz
+    │   ├── MERGED.Ovarian-cancer.fasttree.hierarchical.clonal.treefile
+    │   ├── MERGED.Ovarian-cancer.fasttree.hierarchical.sample.treefile
+    │   ├── MERGED.Ovarian-cancer.fasttree.manifold.clonal.treefile
+    │   ├── MERGED.Ovarian-cancer.fasttree.manifold.sample.treefile
+    │   ├── MERGED.Ovarian-cancer.fasttree.tree
+    │   ├── MERGED.Ovarian-cancer.iqtree.hierarchical.clonal.treefile
+    │   ├── MERGED.Ovarian-cancer.iqtree.hierarchical.sample.treefile
+    │   ├── MERGED.Ovarian-cancer.iqtree.manifold.clonal.treefile
+    │   ├── MERGED.Ovarian-cancer.iqtree.manifold.sample.treefile
+    │   └── MERGED.Ovarian-cancer.iqtree.tree
+    └── TNBC
+        ├── cell_barcodes_SNPmanifold_clusters.tsv.gz
+        ├── TNBC5.select-cell-types.cellSNP.base.vcf.gz
+        ├── TNBC5.select-cell-types.cellSNP.samples.tsv.gz
+        ├── TNBC5.select-cell-types.cellSNP.tag.AD.mtx.gz
+        ├── TNBC5.select-cell-types.cellSNP.tag.DP.mtx.gz
+        ├── TNBC5.select-cell-types.cellSNP.tag.OTH.mtx.gz
+        ├── TNBC5.select-cell-types.clones.hierarchical.tsv.gz
+        ├── TNBC5.select-cell-types.clones.manifold.tsv.gz
+        ├── TNBC5.select-cell-types.fasttree.hierarchical.clonal.treefile
+        ├── TNBC5.select-cell-types.fasttree.hierarchical.lineage.treefile
+        ├── TNBC5.select-cell-types.fasttree.manifold.clonal.treefile
+        ├── TNBC5.select-cell-types.fasttree.manifold.lineage.treefile
+        ├── TNBC5.select-cell-types.fasttree.tree
+        ├── TNBC5.select-cell-types.iqtree.hierarchical.clonal.treefile
+        ├── TNBC5.select-cell-types.iqtree.hierarchical.lineage.treefile
+        ├── TNBC5.select-cell-types.iqtree.manifold.clonal.treefile
+        ├── TNBC5.select-cell-types.iqtree.manifold.lineage.treefile
+        └── TNBC5.select-cell-types.iqtree.tree
 ``` 
 
 ## General usage of scripts

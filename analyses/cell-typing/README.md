@@ -20,11 +20,15 @@ Illustration of module directory structure using 10x scRNA-Seq dataset from the 
 |   |-- BoneMarrowMap_Annotated_Dataset_expandedFeatures.rds
 |   |-- BoneMarrowMap_SymphonyReference.rds
 |   |-- BoneMarrowMap_uwot_model.uwot
-|   `-- HBCA-snRNA-seq-all-cells.rds
+|   |-- HBCA-snRNA-seq-all-cells.rds
+|   `-- SPECTRUM-OV-003-cell-annotation.tsv.gz
 |-- objects
 |   |-- AML
 |   |   |-- AML-clusters.rds
 |   |   `-- AML-mapping-annotations.rds
+|   |-- SPECTRUM
+|   |   |-- SPECTRUM-clusters.rds
+|   |   `-- SPECTRUM-mapping-annotations.rds
 |   `-- TNBC
 |       |-- TNBC-clusters.rds
 |       `-- TNBC-custom-annotations.rds
@@ -33,14 +37,20 @@ Illustration of module directory structure using 10x scRNA-Seq dataset from the 
 |   |   |-- AML-clusters-umap.pdf
 |   |   |-- AML-elbowplot.pdf
 |   |   `-- AML-mapping-annotations-umap.pdf
+|   |-- SPECTRUM
+|   |   |-- SPECTRUM-clusters-umap.pdf
+|   |   |-- SPECTRUM-elbowplot.pdf
+|   |   `-- SPECTRUM-mapping-annotations-umap.pdf
 |   `-- TNBC
 |       |-- TNBC-clusters-umap.pdf
 |       |-- TNBC-custom-annotations-umap.pdf
 |       |-- TNBC-custom-delta-heatmap.pdf
 |       `-- TNBC-elbowplot.pdf
-|-- results
+`-- results
     |-- AML
     |   `-- AML-mapping-annotations.tsv.gz
+    |-- SPECTRUM
+    |   `-- SPECTRUM-mapping-annotations.tsv.gz    
     `-- TNBC
         `-- TNBC-custom-annotations.tsv.gz      
 ```

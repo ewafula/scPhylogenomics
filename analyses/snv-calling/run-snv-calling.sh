@@ -33,6 +33,25 @@ python 03-generate-snp-msa.py \
   --min_snps_per_cell 0.065
  
   
+printf '\nStart SPECTRUM multiple sample SNV calling...\n'  
+  
+# Muiltiple sample patient data with cancer cell types
+printf '\n-- Get sample cell type tumor cell barcodes for SNV calling...\n'
+Rscript --vanilla 01-get-cell-type-barcodes.R \
+  --project SPECTRUM \
+  --cell_types Ovarian-cancer
+
+printf '\n-- Call sample SNVs using the cell-snp-lite pipeline...\n'
+python 02-snv-calling.py \
+  --project SPECTRUM \
+  --num_threads 16
+
+printf '\n-- Create sample filtered SNP MSA and binary matrix ...\n'
+python 03-generate-snp-msa.py \
+  --project SPECTRUM \
+  --min_cells_per_snp 0.03 \
+  --min_snps_per_cell 0.03
+  
 printf '\nStart AML single sample SNV calling...\n'  
   
 # Single sample patient data with all cell types - LE1

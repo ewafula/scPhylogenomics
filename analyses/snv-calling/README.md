@@ -1,7 +1,7 @@
 # SNV Calling
 
 ## Purpose
-This module calls and characterizes somatic single nucleotide variants (SNVs) across cell populations for tumor samples at single-cell resolution. The workflow begins by extracting barcode identifiers for cell types of interest to ensure only relevant cells are analyzed. It then automates sample- and cell type-specific SNV calling using [cellsnp-lite](https://academic.oup.com/bioinformatics/article/37/23/4569/6272512), efficiently processing sequencing data to detect SNVs and generate generate genotype matrices. The pipeline includes optional filtering using RNA Editing sites and Panels of Normals (PoN) if available. Finally, the results are processed to generate mutation matrices and pseudo-multiple sequence alignments (MSAs) suitable for phylogenomic and clonal clustering analyses.
+This module calls and characterizes somatic single nucleotide variants (SNVs) across cell populations for tumor sample(s) at single-cell resolution. The workflow begins by extracting barcode identifiers for cell types of interest to ensure only relevant cells are analyzed. It then automates cell type-specific SNV calling using [cellsnp-lite](https://academic.oup.com/bioinformatics/article/37/23/4569/6272512) project sample or merged samples, efficiently processing sequencing data to detect SNVs and generate generate genotype matrices. The pipeline includes optional filtering using RNA Editing sites and Panels of Normals (PoN) if available. Finally, the results are processed to generate mutation matrices and pseudo-multiple sequence alignments (MSAs) suitable for phylogenomic and clonal clustering analyses.
 
 ## Analysis
 This module performs SNV calling to produce mutation matrices and MSAs suitable for phylogenomic analyses.
@@ -21,6 +21,13 @@ Illustration of module directory structure based on the current implementation.
 |   |-- PoN.scRNAseq.hg38.tsv
 |   |-- AML
 |   |   `-- LE1-cancer-cells-barcodes.tsv.gz
+|   |-- SPECTRUM
+|   |   |-- INFRACOLIC_OMENTUM-cancer-cells-barcodes.tsv.gz
+|   |   |-- LEFT_ADNEXA-cancer-cells-barcodes.tsv.gz
+|   |   |-- LEFT_UPPER_QUADRANT-cancer-cells-barcodes.tsv.gz
+|   |   |-- PELVIC_PERITONEUM-cancer-cells-barcodes.tsv.gz
+|   |   |-- RIGHT_ADNEXA-cancer-cells-barcodes.tsv.gz
+|   |   `-- RIGHT_UPPER_QUADRANT-cancer-cells-barcodes.tsv.gz
 |   `-- TNBC
 |       `-- TNBC5-cancer-cells-barcodes.tsv.gz
 |-- results
@@ -34,6 +41,16 @@ Illustration of module directory structure based on the current implementation.
 |   |   |-- LE1.all-cell-types.cellSNP.tag.AD.mtx.gz
 |   |   |-- LE1.all-cell-types.cellSNP.tag.DP.mtx.gz
 |   |   `-- LE1.all-cell-types.cellSNP.tag.OTH.mtx.gz
+|   |-- SPECTRUM
+|   |   |-- MERGED.Ovarian-cancer.cellSNP.barcodes.filtered.tsv.gz
+|   |   |-- MERGED.Ovarian-cancer.cellSNP.base.vcf.gz
+|   |   |-- MERGED.Ovarian-cancer.cellSNP.msa.fasta.gz
+|   |   |-- MERGED.Ovarian-cancer.cellSNP.samples.tsv.gz
+|   |   |-- MERGED.Ovarian-cancer.cellSNP.sites.filtered.tsv.gz
+|   |   |-- MERGED.Ovarian-cancer.cellSNP.snp.mtx.gz
+|   |   |-- MERGED.Ovarian-cancer.cellSNP.tag.AD.mtx.gz
+|   |   |-- MERGED.Ovarian-cancer.cellSNP.tag.DP.mtx.gz
+|   |   `-- MERGED.Ovarian-cancer.cellSNP.tag.OTH.mtx.gz
 |   `-- TNBC
 |       |-- TNBC5.select-cell-types.cellSNP.barcodes.filtered.tsv.gz
 |       |-- TNBC5.select-cell-types.ellSNP.base.vcf.gz
@@ -48,6 +65,7 @@ Illustration of module directory structure based on the current implementation.
     |-- csp_utils.py
     |-- run-cellsnp-lite.sh
     |-- split-bam.py
+    |-- merge-bams.py
     `-- variant-calling.py
 ```
 

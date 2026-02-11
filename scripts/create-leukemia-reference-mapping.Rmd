@@ -85,7 +85,7 @@ if (!file.exists(bm_ref_symphony_file)) {
 # Download uwot model file if not already present (~221 Mb) - for UMAP projection
 if (!file.exists(bm_uwot_file)) {
   message("Downloading uwot model file...")
-  ccurl::curl_download(
+  curl::curl_download(
     "https://bonemarrowmap.s3.us-east-2.amazonaws.com/BoneMarrowMap_uwot_model.uwot", 
     destfile = bm_uwot_file,
     quiet = FALSE

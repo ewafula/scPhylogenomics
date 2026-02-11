@@ -29,7 +29,26 @@ Rscript --vanilla  02-annotate-cell-types.R \
   --assay RNA \
   --annot_method custom \
   --ref_data inputs/HBCA-snRNA-seq-all-cells.rds
-  
+
+# SPECTRUM integrated dataset
+printf '\n-- Cell typing SPECTRUM integrated samples...\n'
+
+printf '\n---- Consolidating project samples...\n'
+Rscript --vanilla 01-consolidate-samples.R \
+  --project SPECTRUM \
+  --integrate TRUE \
+  --normalize_method LogNormalize \
+  --integrate_method Harmony \
+  --components 20 \
+  --resolution 0.3
+
+printf '\n---- Annotating cell types using mappings from SPECTRUM...\n'
+Rscript --vanilla  02-annotate-cell-types.R \
+  --project SPECTRUM \
+  --assay RNA \
+  --annot_method mapping \
+  --ref_data inputs/SPECTRUM-OV-003-cell-annotation.tsv.gz
+
 # AML dataset individual sample
 printf '\n-- Cell typing of AML individual sample...\n' 
 Rscript --vanilla 01-consolidate-samples.R \
@@ -40,7 +59,7 @@ Rscript --vanilla 01-consolidate-samples.R \
   --resolution 1.4
   
 printf '\n---- Annotating cell types using the Leukemia Cell Atlas...\n'
-pushd ../../scripts/ > /dev/nul
+pushd ../../scripts/ > /dev/null
 Rscript -e "rmarkdown::render('create-leukemia-reference-mapping.Rmd', clean = TRUE)"
 popd > /dev/null
   

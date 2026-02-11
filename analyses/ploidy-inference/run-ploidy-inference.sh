@@ -21,7 +21,17 @@ printf '\n-- Cell ploidy prediction and classification of TNBC individual sample
 Rscript --vanilla 01-classify-cell-ploidy.R \
   --project TNBC \
   --annot_object TNBC-custom-annotations.rds \
+  --nthreads 16
+  
+# SPETRUM dataset multiple integrated samples 
+printf '\n-- Cell ploidy prediction and classification of SPECTRUM integrated samples...\n'
+
+Rscript --vanilla 01-classify-cell-ploidy.R \
+  --project SPECTRUM \
+  --annot_object SPECTRUM-mapping-annotations.rds \
   --nthreads 30
+
+printf '\nCell ploidy prediction and classification Done...\n'  
 
 # AML dataset individual sample
 printf '\n-- Cell ploidy prediction and classification of AML individual sample...\n'
@@ -29,6 +39,6 @@ printf '\n-- Cell ploidy prediction and classification of AML individual sample.
 Rscript --vanilla 01-classify-cell-ploidy.R \
   --project AML \
   --annot_object AML-mapping-annotations.rds \
-  --nthreads 30
+  --nthreads 16
 
 printf '\nCell ploidy prediction and classification Done...\n'

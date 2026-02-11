@@ -156,10 +156,10 @@ if (integrate) {
                                           new.reduction = "integrated",
                                           verbose = FALSE)       
     sample_obj <- Seurat::FindNeighbors(sample_obj, dims = 1:components, 
-                                        reduction = "pca")
+                                        reduction = "integrated")
     sample_obj <- Seurat::FindClusters(sample_obj, resolution = resolution)
     sample_obj <- Seurat::RunUMAP(sample_obj, dims = 1:components,
-                                  reduction = "pca", reduction.name = "umap")
+                                  reduction = "integrated", reduction.name = "umap")
   }				
 } else {
   sample_obj <- Seurat::FindNeighbors(sample_obj, dims = 1:components,

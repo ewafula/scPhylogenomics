@@ -1,6 +1,6 @@
 #!/bin/bash
-# Eric Wafula
-# 2025
+# Updated: 2026 - Automatic Sample Detection, Merging, and Results Aggregation
+# Author: Eric Wafula
 
 set -e
 set -o pipefail
@@ -8,11 +8,9 @@ set -o pipefail
 ###############################################
 # Validate arguments
 ###############################################
-# [UPDATED] Usage message now reflects that defaults are NO filtering.
-if [ "$#" -lt 5 ] || [ "$#" -gt 9 ]; then
-    echo "Usage: $0 <project> <sample> <barcodes file> <cell type> [num threads] [min maf] [min count] [editing file] [pon file]"
-    echo "Defaults: num threads=4, min maf=0.1, min count=100"
-    echo "Defaults: editing file=None, pon file=None (No filtering performed unless paths provided)"
+if [ "$#" -lt 2 ] || [ "$#" -gt 7 ]; then
+    echo "Usage: $0 <project> <cell type> [num threads] [min maf] [min count] [editing file] [pon file]"
+    echo "Note: <sample> and <barcodes file> are automatically detected from the 'inputs' directory."
     exit 1
 fi
 
@@ -22,31 +20,26 @@ fi
 UTILS=utils
 RESULTS="results"
 DATA=../../data
+INPUTS="inputs"
 
 ###############################################
 # Required parameters
 ###############################################
 PROJECT=$1
-SAMPLE=$2
-BARCODES_FILE=$3
-CELL_TYPE=$4
+CELL_TYPE=$2
 
 ###############################################
 # Optional parameters with defaults
 ###############################################
-NPROC=${5:-4}
-MINMAF=${6:-0.1}
-MINCOUNT=${7:-100}
-
-# Defaults to empty strings ("") unless user provides file paths.
-# This means if the user stops typing after arg 7, these variables are empty.
-EDITING_FILE=${8:-""}
-PON_FILE=${9:-""}
+NPROC=${3:-4}
+MINMAF=${4:-0.1}
+MINCOUNT=${5:-100}
+EDITING_FILE=${6:-""}
+PON_FILE=${7:-""}
 
 ###############################################
 # Environment setup
 ###############################################
-# Check for Docker path first, then fall back to local home path
 if [ -d "/opt/conda" ]; then
     CONDA_BASE="/opt/conda"
 elif [ -d "$HOME/miniconda3" ]; then
@@ -56,120 +49,153 @@ else
     exit 1
 fi
 
-SCRATCH=../../scratch/cellsnp/$PROJECT/$SAMPLE
-mkdir -p $SCRATCH
-
 # Conda activation
 source "$CONDA_BASE/bin/activate" cellsnp_env
 
-printf "\n Working on $PROJECT $SAMPLE $CELL_TYPE cells...\n"
+# Automatically determine samples based on the flat file structure
+# Extracts everything before "-cancer-cells-barcodes.tsv.gz" as the SAMPLE name
+SAMPLES=($(ls $INPUTS/$PROJECT/*-cancer-cells-barcodes.tsv.gz | xargs -n 1 basename | sed 's/-cancer-cells-barcodes.tsv.gz//'))
+NUM_SAMPLES=${#SAMPLES[@]}
+
+if [ "$NUM_SAMPLES" -eq 0 ]; then
+    echo "Error: No barcode files found in $INPUTS/$PROJECT matching pattern *-cancer-cells-barcodes.tsv.gz"
+    exit 1
+fi
+
+printf "\nDetected $NUM_SAMPLES samples in project: $PROJECT\n"
+
+# Arrays to keep track of outputs for merging
+BAMS_TO_MERGE=()
+BARCODES_TO_MERGE=()
 
 ###############################################
-# Step 0: Subset barcodes
+# Step 1: Iterate through samples and split BAMs
 ###############################################
-printf '\n Getting sample cell type barcodes...\n'
+for SAMPLE in "${SAMPLES[@]}"; do
+    printf "\n--- Processing Sample: $SAMPLE ---\n"
+    
+    # NEW: Updated path for flat structure
+    BARCODES_FILE="$INPUTS/$PROJECT/$SAMPLE-cancer-cells-barcodes.tsv.gz"
+    
+    if [ ! -f "$BARCODES_FILE" ]; then
+        echo "Warning: Barcode file $BARCODES_FILE not found. Skipping $SAMPLE."
+        continue
+    fi
 
-zcat "$BARCODES_FILE" | \
-    awk -v var="$CELL_TYPE" 'NR==1 || $2==var { print }' \
-    > "$SCRATCH/$CELL_TYPE.barcode.tsv"
+    SCRATCH_SAMPLE="../../scratch/cellsnp/$PROJECT/$SAMPLE"
+    mkdir -p "$SCRATCH_SAMPLE"
+
+    # Subset barcodes for current sample/cell type
+    printf "Filtering barcodes for $CELL_TYPE...\n"
+    zcat "$BARCODES_FILE" | \
+        awk -v var="$CELL_TYPE" 'NR==1 || $2==var { print }' \
+        > "$SCRATCH_SAMPLE/$CELL_TYPE.barcode.tsv"
+
+    # BAM files are still expected in the standard data/project/sample path
+    bam_file="$DATA/projects/$PROJECT/$SAMPLE/outs/possorted_genome_bam.bam"
+    output_dir1="$SCRATCH_SAMPLE/Step1_BamCellTypes"
+    mkdir -p "$output_dir1"
+
+    if [ ! -f "$bam_file" ]; then
+        echo "Error: BAM file not found at $bam_file"
+        exit 1
+    fi
+
+    printf "Splitting BAM...\n"
+    python $UTILS/split-bam.py \
+        --bam "$bam_file" \
+        --meta "$SCRATCH_SAMPLE/$CELL_TYPE.barcode.tsv" \
+        --id "$SAMPLE" \
+        --n_trim 5 \
+        --max_nM 5 \
+        --max_NH 1 \
+        --outdir "$output_dir1"
+
+    # Save paths for Step 2
+    BAMS_TO_MERGE+=("$output_dir1/${SAMPLE}.${CELL_TYPE}.bam")
+    BARCODES_TO_MERGE+=("$output_dir1/${SAMPLE}.${CELL_TYPE}.barcodes.tsv")
+done
 
 ###############################################
-# Step 1: Split BAM by cell type
+# Step 2: Merge logic
 ###############################################
-printf "\nSplitting alignment file in cell type specific bams...\n"
+FINAL_SCRATCH="../../scratch/cellsnp/$PROJECT"
+mkdir -p "$FINAL_SCRATCH"
 
-bam_file="$DATA/projects/$PROJECT/$SAMPLE/outs/possorted_genome_bam.bam"
-sample=$SAMPLE
-cell_barcodes="$SCRATCH/$CELL_TYPE.barcode.tsv"
-
-output_dir1="$SCRATCH/Step1_BamCellTypes"
-mkdir -p "$output_dir1"
-
-python $UTILS/split-bam.py \
-    --bam "$bam_file" \
-    --meta "$cell_barcodes" \
-    --id "$sample" \
-    --n_trim 5 \
-    --max_nM 5 \
-    --max_NH 1 \
-    --outdir "$output_dir1"
+if [ "$NUM_SAMPLES" -gt 1 ]; then
+    printf "\nMultiple samples detected. Merging into 'MERGED' BAM...\n"
+    FINAL_ID="MERGED"
+    FINAL_BAM="$FINAL_SCRATCH/$FINAL_ID.$CELL_TYPE.bam"
+    FINAL_BARCODES="$FINAL_SCRATCH/$FINAL_ID.$CELL_TYPE.barcodes.tsv"
+    
+    # Use helper script to merge, sort, and index
+    python $UTILS/merge-bams.py --inputs "${BAMS_TO_MERGE[@]}" --output "$FINAL_BAM"
+    
+    # Combine unique barcodes across all samples
+    cat "${BARCODES_TO_MERGE[@]}" | sort | uniq > "$FINAL_BARCODES"
+else
+    printf "\nSingle sample detected. Proceeding without merge...\n"
+    FINAL_ID="${SAMPLES[0]}"
+    FINAL_BAM="${BAMS_TO_MERGE[0]}"
+    FINAL_BARCODES="${BARCODES_TO_MERGE[0]}"
+fi
 
 ###############################################
-# Step 2: Variant calling
+# Step 3: Variant calling
 ###############################################
-printf "\nDetecting somatic mutations...\n"
+printf "\nDetecting somatic mutations for $FINAL_ID ($CELL_TYPE)...\n"
 
-cell_type="$CELL_TYPE"
-output_dir2="$SCRATCH/Step2_VariantCalling"
+output_dir2="$FINAL_SCRATCH/Step2_VariantCalling"
 mkdir -p "$output_dir2"
 
-# [UPDATED] Build command dynamically based on presence of file paths
 CMD=(python $UTILS/variant-calling.py)
-CMD+=(--sam "$output_dir1/${sample}.${cell_type}.bam")
-CMD+=(--barcode "$output_dir1/${sample}.${cell_type}.barcodes.tsv")
+CMD+=(--sam "$FINAL_BAM")
+CMD+=(--barcode "$FINAL_BARCODES")
 CMD+=(--outdir "$output_dir2")
 CMD+=(--nproc "$NPROC")
 CMD+=(--minMAF "$MINMAF")
 CMD+=(--minCOUNT "$MINCOUNT")
-CMD+=(--id "$sample")
-CMD+=(--cell_type "$cell_type")
+CMD+=(--id "$FINAL_ID")
+CMD+=(--cell_type "$CELL_TYPE")
 
-# Only add --editing if the user provided a non-empty string AND the file exists
-if [[ -n "$EDITING_FILE" ]]; then
-    if [[ -f "$EDITING_FILE" ]]; then
-        printf " >> Using Editing sites file: $EDITING_FILE\n"
-        CMD+=(--editing "$EDITING_FILE")
-    else
-        echo "Error: Editing file path provided ('$EDITING_FILE') but file not found."
-        exit 1
-    fi
-else
-    printf " >> No Editing file provided. Skipping Editing filtering.\n"
-fi
+[[ -f "$EDITING_FILE" ]] && CMD+=(--editing "$EDITING_FILE")
+[[ -f "$PON_FILE" ]] && CMD+=(--pon "$PON_FILE")
 
-# Only add --pon if the user provided a non-empty string AND the file exists
-if [[ -n "$PON_FILE" ]]; then
-    if [[ -f "$PON_FILE" ]]; then
-        printf " >> Using PoN file: $PON_FILE\n"
-        CMD+=(--pon "$PON_FILE")
-    else
-        echo "Error: PoN file path provided ('$PON_FILE') but file not found."
-        exit 1
-    fi
-else
-    printf " >> No PoN file provided. Skipping PoN filtering.\n"
-fi
-
-# Execute command
+# Execute variant calling
 "${CMD[@]}"
 
 ###############################################
-# Step 3: Copy results to module result dir
+# Step 4: Refined Copy results (with Compression)
 ###############################################
-printf "\n Copying final filtered cellsnp-lite results...\n"
+printf "\nCopying and compressing final results to $RESULTS/$PROJECT...\n"
 
-results="results/$PROJECT"
-mkdir -p "$results"
+DEST_DIR="$RESULTS/$PROJECT"
+mkdir -p "$DEST_DIR"
 
-cp "$output_dir2/${sample}.${cell_type}.cellSNP.base.vcf.gz" \
-   "$results/${sample}.${cell_type}.cellSNP.base.vcf.gz"
+SRC_PREFIX="$output_dir2/${FINAL_ID}.${CELL_TYPE}.cellSNP"
 
-gzip -c "$output_dir2/${sample}.${cell_type}.cellSNP.samples.tsv" \
-   > "$results/${sample}.${cell_type}.cellSNP.samples.tsv.gz"
+# 1. VCF
+if [ -f "${SRC_PREFIX}.base.vcf.gz" ]; then
+    cp "${SRC_PREFIX}.base.vcf.gz" "$DEST_DIR/"
+elif [ -f "${SRC_PREFIX}.base.vcf" ]; then
+    gzip -c "${SRC_PREFIX}.base.vcf" > "$DEST_DIR/${FINAL_ID}.${CELL_TYPE}.cellSNP.base.vcf.gz"
+fi
 
-gzip -c "$output_dir2/${sample}.${cell_type}.cellSNP.tag.AD.mtx" \
-   > "$results/${sample}.${cell_type}.cellSNP.tag.AD.mtx.gz"
+# 2. Samples TSV
+if [ -f "${SRC_PREFIX}.samples.tsv" ]; then
+    gzip -c "${SRC_PREFIX}.samples.tsv" > "$DEST_DIR/${FINAL_ID}.${CELL_TYPE}.cellSNP.samples.tsv.gz"
+fi
 
-gzip -c "$output_dir2/${sample}.${cell_type}.cellSNP.tag.DP.mtx" \
-   > "$results/${sample}.${cell_type}.cellSNP.tag.DP.mtx.gz"
+# 3. Matrix Files (AD, DP, OTH)
+for tag in AD DP OTH; do
+    if [ -f "${SRC_PREFIX}.tag.${tag}.mtx" ]; then
+        gzip -c "${SRC_PREFIX}.tag.${tag}.mtx" > "$DEST_DIR/${FINAL_ID}.${CELL_TYPE}.cellSNP.tag.${tag}.mtx.gz"
+    fi
+done
 
-gzip -c "$output_dir2/${sample}.${cell_type}.cellSNP.tag.OTH.mtx" \
-   > "$results/${sample}.${cell_type}.cellSNP.tag.OTH.mtx.gz"
-
-printf "\nAnalysis Done...\n"
+printf "\nAnalysis Done. Results available in $DEST_DIR\n"
 
 ###############################################
 # Environment cleanup
 ###############################################
-conda deactivate || true
 conda deactivate || true

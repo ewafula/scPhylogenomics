@@ -18,18 +18,25 @@ Illustration of module directory structure using 10x scRNA-Seq dataset from the 
 |-- objects
 |   |-- AML
 |   |   `-- AML-cell-ploidy-prediction.rds
+|   |-- SPECTRUM
+|   |   `-- SPECTRUM-cell-ploidy-prediction.rds
 |   `-- TNBC
 |       `-- TNBC-cell-ploidy-prediction.rds
 |-- plots
 |   |-- AML
 |   |   |-- AML-cell-ploidy-prediction-umap.pdf
 |   |   `-- AML_copykat_heatmap.jpeg
+|   |-- SPECTRUM
+|   |   |-- SPECTRUM-cell-ploidy-prediction-umap.pdf
+|   |   `-- SPECTRUM_copykat_heatmap.jpeg
 |   `-- TNBC
 |       |-- TNBC-cell-ploidy-prediction-umap.pdf
 |       `-- TNBC_copykat_heatmap.jpeg
-|-- results
+`-- results
     |-- AML
     |   `-- AML-cell-ploidy-prediction.tsv.gz
+    |-- SPECTRUM
+    |   `-- SPECTRUM-cell-ploidy-prediction.tsv.gz  
     `-- TNBC
        `-- TNBC-cell-ploidy-prediction.tsv.gz
 ```

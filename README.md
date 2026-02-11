@@ -24,6 +24,11 @@ Single-cell transcriptomic data for human tumors from the [CopyKAT](https://www.
 
 - TNBC5 sample from an individual with `triple negative breast cancer (TNBC)`
 
+##### MSK SPECTRUM
+Single-cell RNA sequencing from the [MSK SPECTRUM](https://www.synapse.org/Synapse:syn25569736/wiki/612269) study for patients with `High-grade serous ovarian cancer (HGSOC)`, an archetypal cancer of genomic instability patterned by distinct mutational processes, tumor heterogeneity, and intraperitoneal spread to assess how mutational processes and the anatomical sites of tumor foci determine the immunological states of the tumor microenvironment.
+
+ - Six tumor samples from multiple sites of one individual (SPECTRUM-OV-003) with `high-grade serous ovarian cancer (HGSOC)`
+
 ##### Acute Myeloid Leukemia (AML) dataset
 **Pending:**
  Need brief description of the AML dataset for sample `LE1` 
