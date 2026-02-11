@@ -1,14 +1,14 @@
 FROM --platform=linux/amd64 rocker/tidyverse:4.4.0
 LABEL maintainer="ewafula@gmail.edu"
+
+# Set initial working directory for build artifacts
 WORKDIR /rocker-build/
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
 
-### Install apt-getable packages to start
-#########################################
-
-# Installing all apt required packages at once
+### 1. System Dependencies
+##########################
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     build-essential \
     bzip2 \
@@ -40,10 +40,12 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     sendmail \
     mailutils \
+    cmake \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and install Python 3.11
+### 2. Python 3.11 Setup
+########################
 RUN cd /usr/src && \
     wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tgz && \
     tar xzf Python-3.11.0.tgz && \
@@ -52,18 +54,12 @@ RUN cd /usr/src && \
     make altinstall && \
     rm -rf /usr/src/Python-3.11.0.tgz
 
-# Setup the default python commands to use Python 3.11
+# Setup default python links
 RUN ln -s /usr/local/bin/python3.11 /usr/local/bin/python3 && \
     ln -s /usr/local/bin/python3.11 /usr/local/bin/python
 RUN python3 -m pip install --upgrade pip
 
-# Set working directory
-WORKDIR /home/rstudio
-
-# Install python packages
-##########################
-
-# Install python3 tools and ALL dependencies
+# Install Python packages
 RUN pip3 install \
     "matplotlib==3.10.1" \
     "numpy==2.2.4" \
@@ -83,162 +79,119 @@ RUN pip3 install \
     "wheel==0.45.1" \
     && rm -rf /root/.cache/pip/wheels
 
-# Standalone tools and libraries
-################################
+### 3. Standalone Tools
+#######################
 
-# Add Cell Ranger
-RUN wget -O cellranger-10.0.0.tar.gz "https://cf.10xgenomics.com/releases/cell-exp/cellranger-10.0.0.tar.gz?Expires=1768972784&Key-Pair-Id=APKAI7S6A5RYOXBWRPDA&Signature=ol8sP1WNEWi2iew-UjxRt4dE7k39Bmf2zLdnuM-5BN7awPtoFySz8WVLKR9MYBL6nQP4aHJRXWPD~FlJ070agwFpLMqSxQ0MJWsshaczUNzK6IkSsl9f4wtEvOiP4erJZM2AQMoyNHNSZ0ZksFcvZq-gA~1IrJVFVeaJLlEToimDQC91levhwNW2-xgukACW4P1NOLFgpYbw-YkgAd2T4FjcDfOUVO~D-zC1tAnf6zBB152ZHhw4Kwsg~~kflxXGdBJv9qdM8FuirQHeZfFrjNgp1rYt21orSazThdOnE8wEHw0pBUkMbQU3867W62ux4jxwQKz-Sb8fynmDvRgPCQ__" && \
-    tar -zxvf cellranger-10.0.0.tar.gz && rm -f ccellranger-10.0.0.tar.gz && \
+# Cell Ranger
+RUN wget -O cellranger-10.0.0.tar.gz "https://cf.10xgenomics.com/releases/cell-exp/cellranger-10.0.0.tar.gz?Expires=1769654122&Key-Pair-Id=APKAI7S6A5RYOXBWRPDA&Signature=DYiC5v~8mxDGHwg75DE26edwR3YpbyUWGhL59bLq0LoQEW2AHVMciEyxJp7p2yyh6L3PQMKhBO6JzX5tpCafOk-p-km1Cut4xMphJutS4hd1V2hmoUAVGDEGPwafUiTzEkcDGz9mm3iWemWuJPH5v6tQDZ5VCvGvJJDZWM7D~hHN58yr5G~HF-4j0fkLfReLw9R6lbLDLgu3b~zlMBgBeA5dYK2oEyr2cF~zI-gxx4Enj6Q9D0shzIbNLINcYy1mpc~VB7Hx9jifrDxw4MoBTFG8Q0EMNMZ40B2JhX1v~L2wC1qeG9MUkVmRdL11lb-KLPuyfDnhUh0~lyBGZdCbZw__" && \
+    tar -zxvf cellranger-10.0.0.tar.gz && rm -f cellranger-10.0.0.tar.gz && \
     mv cellranger-10.0.0 /usr/local/bin/ && \
     ln -s /usr/local/bin/cellranger-10.0.0/cellranger /usr/local/bin/cellranger
 
-
-# Add FastTree
+# FastTree
 RUN wget -O v2.2.0.tar.gz https://github.com/morgannprice/fasttree/archive/refs/tags/v2.2.0.tar.gz && \
     tar -zxvf v2.2.0.tar.gz && rm -f v2.2.0.tar.gz && \
     mv fasttree-2.2.0/FastTree /usr/local/bin/FastTree && rm -rf fasttree-2.2.0
 
-# Add iqtree3
+# iqtree3
 RUN wget -O iqtree-3.0.1-Linux.tar.gz https://github.com/iqtree/iqtree3/releases/download/v3.0.1/iqtree-3.0.1-Linux.tar.gz && \
     tar -zxvf iqtree-3.0.1-Linux.tar.gz && rm -f iqtree-3.0.1-Linux.tar.gz && \
     mv iqtree-3.0.1-Linux/bin/iqtree3* /usr/local/bin/ && rm -rf iqtree-3.0.1-Linux
 
-#### R packages
-###############
+### 4. R Packages
+#################
 
-# Define GITHUB_PAT argument to avoid rate limits
 ARG GITHUB_PAT
 ENV GITHUB_PAT=$GITHUB_PAT
 
-# Set the Bioconductor repository as the primary repository
-RUN R -e "options(repos = BiocManager::repositories())"
+# Configure Bioconductor & Basic Setup
+RUN R -e "options(repos = BiocManager::repositories()); install.packages('BiocManager'); BiocManager::install(version = '3.20')"
 
-# Install BiocManager and the desired version of Bioconductor
-RUN R -e "install.packages('BiocManager', dependencies=TRUE)"
-RUN R -e "BiocManager::install(version = '3.20')"
+# Install matrixStats (dev version)
+RUN R -e "remotes::install_github('HenrikBengtsson/matrixStats', ref='develop', upgrade='never')"
 
-# Install matrixStats 1.4.1
-RUN R -e "remotes::install_github('HenrikBengtsson/matrixStats', ref='develop')"
+# Bulk Install Bioc/CRAN Packages
+# Note: Added 'upgrade=FALSE' to prevent interactive prompts
+RUN R -e "BiocManager::install(c( \
+  'multtest', 'DropletUtils', 'SingleCellExperiment', 'SummarizedExperiment', \
+  'glmGamPoi', 'celldex', 'SingleR', 'scran', 'Biobase', 'GenomicRanges', \
+  'GenomeInfoDb', 'GenomicAlignments', 'IRanges', 'S4Vectors', 'BiocGenerics', \
+  'Matrix', 'MatrixGenerics', 'DirichletMultinomial', 'TFBSTools', 'biomaRt', \
+  'BSgenome.Hsapiens.UCSC.hg38', 'EnsDb.Hsapiens.v86', 'harmony', 'SeuratObject', \
+  'sctransform', 'future', 'devtools', 'tidyverse', 'SoupX', 'patchwork', \
+  'Seurat', 'flexmix', 'optparse', 'glue', 'data.table', 'scCustomize', \
+  'viridis', 'ComplexHeatmap', 'dittoSeq', 'Nebulosa', 'ggpubr', 'hdf5r', \
+  'liger', 'ape', 'adephylo', 'phytools', 'symphony', 'RColorBrewer', \
+  'AUCell', 'UCell', 'doMC', 'BiocNeighbors', 'uwot' \
+  ), update=FALSE, ask=FALSE)"
 
-# Install R packages
-RUN R -e 'BiocManager::install(c( \
-  "multtest", \
-  "DropletUtils", \
-  "SingleCellExperiment", \
-  "SummarizedExperiment", \
-  "glmGamPoi", \
-  "celldex", \
-  "SingleR", \
-  "scran", \
-  "Biobase", \
-  "GenomicRanges", \
-  "GenomeInfoDb", \
-  "GenomicAlignments", \
-  "IRanges", \
-  "S4Vectors", \
-  "BiocGenerics", \
-  "Matrix", \
-  "MatrixGenerics", \
-  "DirichletMultinomial", \
-  "TFBSTools", \
-  "biomaRt", \
-  "BSgenome.Hsapiens.UCSC.hg38", \
-  "EnsDb.Hsapiens.v86", \
-  "harmony", \
-  "SeuratObject", \
-  "sctransform", \
-  "future", \
-  "devtools", \
-  "tidyverse", \
-  "SoupX", \
-  "patchwork", \
-  "Seurat", \
-  "flexmix", \
-  "optparse", \
-  "glue", \
-  "data.table", \
-  "scCustomize", \
-  "viridis", \
-  "ComplexHeatmap", \
-  "dittoSeq", \
-  "Nebulosa", \
-  "ggpubr", \
-  "hdf5r", \
-  "liger", \
-  "ape", \
-  "adephylo", \
-  "phytools", \
-  "symphony", \
-  "RColorBrewer", \
-  "AUCell", \
-  "UCell", \
-  "doMC", \
-  "BiocNeighbors", \
-  "uwot" \
-  ))'
+# GitHub Packages
+# IMPORTANT: 'upgrade="never"' is added to all these to prevent build failures/hangs
+RUN R -e "remotes::install_github('chris-mcginnis-ucsf/DoubletFinder', upgrade='never')"
+RUN R -e "remotes::install_github('stuart-lab/signac', ref = 'develop', upgrade='never')"
+RUN R -e "remotes::install_github('satijalab/seurat-data', upgrade='never')"
+RUN R -e "remotes::install_github('satijalab/azimuth', ref = 'master', upgrade='never')"
 
-# Install DoubletFinder
-RUN R -e "remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')"
-
-# install signac
-RUN R -e "remotes::install_github('stuart-lab/signac', ref = 'develop')"
-
-# Install Azimuth
-RUN R -e "remotes::install_github('satijalab/seurat-data')"
-RUN R -e "remotes::install_github('satijalab/azimuth', ref = 'master')"
-
-# Intall ggtree
-RUN R -e "remotes::install_github('YuLab-SMU/yulab.utils')"
-RUN R -e "remotes::install_github('YuLab-SMU/ggfun')"
+# ggtree stack
+RUN R -e "remotes::install_github('YuLab-SMU/yulab.utils', upgrade='never')"
+RUN R -e "remotes::install_github('YuLab-SMU/ggfun', upgrade='never')"
 RUN R -e "BiocManager::install(c('treeio','ggtree'), update=TRUE, ask=FALSE)"
 
-# Install SeuratWrappers
-RUN R -e "options(timeout=9999999)"
-RUN R -e "remotes::install_github('satijalab/seurat-wrappers')"
+# SeuratWrappers (FIXED)
+# Combined timeout and install into one block so settings persist
+RUN R -e "options(timeout=9999999); remotes::install_github('satijalab/seurat-wrappers', upgrade='never')"
 
-# Install CopyKAT
-RUN R -e "remotes::install_github('navinlabcode/copykat')"
+# Other GitHub Tools
+RUN R -e "remotes::install_github('navinlabcode/copykat', upgrade='never')"
+RUN R -e "remotes::install_github('helixcn/phylotools', build_vignettes = TRUE, upgrade='never')"
+RUN R -e "remotes::install_github('andygxzeng/BoneMarrowMap', upgrade='never')"
 
-# Install phylotools
-RUN R -e "remotes::install_github('helixcn/phylotools', build_vignettes = TRUE)"
-
-# Install BoneMarrowMap
-RUN R -e "remotes::install_github('andygxzeng/BoneMarrowMap')"
-
-#########################################################
-# Install Miniconda and Custom Environments
-#########################################################
+### 5. Miniconda & Environments
+###############################
 WORKDIR /opt
-
-# Install Miniconda to /opt/conda
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py39_24.5.0-0-Linux-x86_64.sh -O miniconda.sh && \
     bash miniconda.sh -b -p /opt/conda && \
     rm miniconda.sh
-
-# Add conda to path temporarily for environment creation
 ENV PATH="/opt/conda/bin:$PATH"
 
-# 1. Copy the YAML files exported from your local machine
 COPY cellsnp_env.yml /tmp/cellsnp_env.yml
 COPY snpmanifold_env.yml /tmp/snpmanifold_env.yml
 
-# 2. Create the environments from the YAML files
-# This creates isolated environments in /opt/conda/envs/cellsnp_env and /opt/conda/envs/snpmanifold_env
+# Set massive timeouts for Pip and Conda to prevent read errors
+# PIP_DEFAULT_TIMEOUT=1000 (seconds) prevents time associated errors y
+# CONDA_REMOTE_READ_TIMEOUT_SECS helps with the conda solver
+ENV PIP_DEFAULT_TIMEOUT=1000 \
+    CONDA_REMOTE_READ_TIMEOUT_SECS=1000
+
 RUN conda env create -f /tmp/cellsnp_env.yml && \
     conda env create -f /tmp/snpmanifold_env.yml && \
     conda clean -afy && \
     rm /tmp/cellsnp_env.yml /tmp/snpmanifold_env.yml
 
-# 3. Ensure permissions are open (so non-root users can activate if needed)
 RUN chmod -R 755 /opt/conda
 
-##############################
-# Reset shell/env for the rest
-##############################
-# Reset PATH so system Python 3.11 is default, not Conda's base python
+# Reset Environment
 ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
-# Reset the frontend variable
 ENV DEBIAN_FRONTEND=
+WORKDIR /home/rstudio
 
-WORKDIR /rocker-build/
+### 6. FINAL VERIFICATION (The "Smoke Test")
+############################################
+# This block will cause the build to fail if critical tools are missing.
+# We test the tools that are most likely to fail silently.
+
+RUN R -e "\
+    check_pkgs <- c('SeuratWrappers', 'Seurat', 'Signac', 'DoubletFinder', 'Azimuth', 'copykat'); \
+    missing <- c(); \
+    for (pkg in check_pkgs) { \
+      if (!require(pkg, character.only = TRUE)) { \
+        missing <- c(missing, pkg); \
+      } \
+    }; \
+    if (length(missing) > 0) { \
+      stop(paste('FATAL: The following packages failed to install:', paste(missing, collapse=', '))); \
+    }"
+
+# Check Command Line tools
+RUN cellranger --version && \
+    echo "Verification Complete: All critical tools are present."

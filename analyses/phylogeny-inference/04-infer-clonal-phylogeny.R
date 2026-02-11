@@ -143,7 +143,8 @@ for (tree_file in tree_files) {
     message("\n  --- Processing ", clone_type, " clustering ---")
     
     tree_current <- tree_cleaned
-    clone_df <- readr::read_tsv(clone_files[[clone_type]], show_col_types = FALSE)
+    clone_df <- readr::read_tsv(clone_files[[clone_type]], show_col_types = FALSE) %>%
+      dplyr::mutate(sample_id = sub("_[^_]+$", "", cell_id))
     
     common_cells <- intersect(tree_current$tip.label, clone_df$cell_id)
     tree_current <- ape::keep.tip(tree_current, common_cells)

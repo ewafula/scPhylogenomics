@@ -25,6 +25,49 @@ Illustration of module directory structure using 10x scRNA-Seq dataset from the 
 |   |   |-- LE1-pk-sweep-plot.pdf
 |   |   |-- LE1-soupx-contaminant.pdf
 |   |   `-- LE1-umap-doublets.pdf
+|   |-- SPECTRUM
+|   |   |-- INFRACOLIC_OMENTUM-metrics-distribution.pdf
+|   |   |-- INFRACOLIC_OMENTUM-metrics-miqc-filtering.pdf
+|   |   |-- INFRACOLIC_OMENTUM-metrics-miqc-model.pdf
+|   |   |-- INFRACOLIC_OMENTUM-metrics_correlation.pdf
+|   |   |-- INFRACOLIC_OMENTUM-pk-sweep-plot.pdf
+|   |   |-- INFRACOLIC_OMENTUM-soupx-contaminant.pdf
+|   |   |-- INFRACOLIC_OMENTUM-umap-doublets.pdf
+|   |   |-- LEFT_ADNEXA-metrics-distribution.pdf
+|   |   |-- LEFT_ADNEXA-metrics-miqc-filtering.pdf
+|   |   |-- LEFT_ADNEXA-metrics-miqc-model.pdf
+|   |   |-- LEFT_ADNEXA-metrics_correlation.pdf
+|   |   |-- LEFT_ADNEXA-pk-sweep-plot.pdf
+|   |   |-- LEFT_ADNEXA-soupx-contaminant.pdf
+|   |   |-- LEFT_ADNEXA-umap-doublets.pdf
+|   |   |-- LEFT_UPPER_QUADRANT-metrics-distribution.pdf
+|   |   |-- LEFT_UPPER_QUADRANT-metrics-miqc-filtering.pdf
+|   |   |-- LEFT_UPPER_QUADRANT-metrics-miqc-model.pdf
+|   |   |-- LEFT_UPPER_QUADRANT-metrics_correlation.pdf
+|   |   |-- LEFT_UPPER_QUADRANT-pk-sweep-plot.pdf
+|   |   |-- LEFT_UPPER_QUADRANT-soupx-contaminant.pdf
+|   |   |-- LEFT_UPPER_QUADRANT-umap-doublets.pdf
+|   |   |-- PELVIC_PERITONEUM-metrics-distribution.pdf
+|   |   |-- PELVIC_PERITONEUMM-metrics-miqc-filtering.pdf
+|   |   |-- PELVIC_PERITONEUM-metrics-miqc-model.pdf
+|   |   |-- PELVIC_PERITONEUM-metrics_correlation.pdf
+|   |   |-- PELVIC_PERITONEUM-pk-sweep-plot.pdf
+|   |   |-- PELVIC_PERITONEUM-soupx-contaminant.pdf
+|   |   |-- PELVIC_PERITONEUM-umap-doublets.pdf
+|   |   |-- RIGHT_ADNEXA-metrics-distribution.pdf
+|   |   |-- RIGHT_ADNEXA-metrics-miqc-filtering.pdf
+|   |   |-- RIGHT_ADNEXA-metrics-miqc-model.pdf
+|   |   |-- RIGHT_ADNEXA-metrics_correlation.pdf
+|   |   |-- RIGHT_ADNEXA-pk-sweep-plot.pdf
+|   |   |-- RIGHT_ADNEXA-soupx-contaminant.pdf
+|   |   |-- RIGHT_ADNEXA-umap-doublets.pdf
+|   |   |-- RIGHT_UPPER_QUADRANT-metrics-distribution.pdf
+|   |   |-- RIGHT_UPPER_QUADRANT-metrics-miqc-filtering.pdf
+|   |   |-- RIGHT_UPPER_QUADRANT-metrics-miqc-model.pdf
+|   |   |-- RIGHT_UPPER_QUADRANT-metrics_correlation.pdf
+|   |   |-- RIGHT_UPPER_QUADRANT-pk-sweep-plot.pdf
+|   |   |-- RIGHT_UPPER_QUADRANT-soupx-contaminant.pdf
+|   |   `-- RIGHT_UPPER_QUADRANT-umap-doublets.pdf
 |   `-- TNBC
 |       |-- TNBC5-metrics-distribution.pdf
 |       |-- TNBC5-metrics-miqc-filtering.pdf
@@ -33,9 +76,16 @@ Illustration of module directory structure using 10x scRNA-Seq dataset from the 
 |       |-- TNBC5-pk-sweep-plot.pdf
 |       |-- TNBC5-soupx-contaminant.pdf
 |       `-- TNBC5-umap-doublets.pdf
-|-- results
+`- results
     |-- AML
     |   `-- LE1-pk-values.txt
+    |-- SPECTRUM
+    |   |-- INFRACOLIC_OMENTUM-pk-values.txt
+    |   |-- LEFT_ADNEXA-pk-values.txt
+    |   |-- LEFT_UPPER_QUADRANT-pk-values.txt
+    |   |-- PELVIC_PERITONEUM-pk-values.txt 
+    |   |-- RIGHT_ADNEXA-pk-values.txt        
+    |   `-- RIGHT_UPPER_QUADRANT-pk-values.txt
     `-- TNBC
         `-- TNBC5-pk-values.txt
 ```

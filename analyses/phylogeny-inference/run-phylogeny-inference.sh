@@ -90,7 +90,83 @@ Rscript --vanilla 04-infer-clonal-phylogeny.R \
   --rescale \
   --annot_type Lineage \ # cell lineage annotations
   --cell_category TNBC-TNBC5-annotation_categories.tsv.gz # cell lineage annotations mappings 
+  
+  
+printf '\nStart SPECTRUM sample data phylogeny inference...\n'
 
+# Sample data - MERGED 
+printf '\n-- Sample phylogeny inference...\n'
+python3 01-phylogeny-inference.py \
+  --project SPECTRUM \
+  --sample MERGED \
+  --cell_type Ovarian-cancer \
+  --method iqtree \
+  --threads 16
+  
+python3 01-phylogeny-inference.py \
+  --project AML \
+  --sample MERGED \
+  --cell_type Ovarian-cancers \
+  --method fasttree \
+  --threads 16  
+  
+printf '\n-- Filter VCF and matrices for manifold clustering.\n'
+python3 02-filter-variants.py \
+  --project SPECTRUM \
+  --sample MERGED \
+  --cell_type Ovarian-cancer  
+
+printf '\n-- Sample manifold clonal clustering...\n'
+# initial iteration to determine optimnal k
+python3 03-snp-clustering.py \
+  --project SPECTRUM \
+  --sample MERGED \
+  --cell_type Ovarian-cancer \
+  --method manifold \
+  --max_cluster 10 
+  
+# final interation  
+python3 03-snp-clustering.py \
+  --project SPECTRUM \
+  --sample MERGED \
+  --cell_type Ovarian-cancer \
+  --method manifold \
+  --max_cluster 5 \
+  --final
+  
+printf '\n-- Sample hierarchical clonal clustering...\n'
+# initial iteration to determine optimnal k
+python3 03-snp-clustering.py \
+  --project SPECTRUM \
+  --sample MERGED \
+  --cell_type Ovarian-cancer \
+  --method hierarchical \
+  -max_cluster 10 
+  
+# final interation  
+python3 03-snp-clustering.py \
+  --project SPECTRUM \
+  --sample MERGED \
+  --cell_type Ovarian-cancer \
+  --method hierarchical \
+  --broad_k 2 \
+  --final   
+  
+printf '\n-- Sample annotations  and clonal clusters phylogeny maping...\n'
+
+# clonal clusters
+Rscript 04-infer-clonal-phylogeny.R \
+  --project SPECTRUM \
+  --refseq \
+  --rescale \
+  --annot_type Clone 
+
+# cell type lineages
+Rscript --vanilla 04-infer-clonal-phylogeny.R \
+  --project SPECTRUM \
+  --refseq \
+  --rescale \
+  --annot_type Sample 
 
 
 printf '\nStart AML sample data phylogeny inference...\n'

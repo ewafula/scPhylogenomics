@@ -1,0 +1,13 @@
+.DS_Store
+.Rhistory
+.Rproj.user
+.rstudio/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.vscode/
+.idea/
+.venv
+venv/
+.env

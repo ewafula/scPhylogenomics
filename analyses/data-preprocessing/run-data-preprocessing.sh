@@ -36,6 +36,28 @@ Rscript --vanilla 03-remove-compromised.R \
   --min_cells 3 \
   --min_features 200 \
   --percentile_filter 0.95
+
+# SPECTRUM dataset
+printf '\n-- Preprocessing SPECTRUM samples...\n'
+
+printf '\n---- Removing background RNA...\n'
+Rscript --vanilla 01-remove-ambient-rna.R \
+  --project SPECTRUM
+
+printf '\n---- Removing doublets...\n'
+Rscript --vanilla  02-remove-doublets.R \
+  --project SPECTRUM \
+  --soupx TRUE \
+  --components 20 \
+  --reagent_kit v3.1_Automated
+
+printf '\n---- Removing compromised cells...\n'
+Rscript --vanilla 03-remove-compromised.R \
+  --project SPECTRUM \
+  --doubletfinder TRUE \
+  --min_cells 3 \
+  --min_features 200 \
+  --percentile_filter 0.95
   
 # AML dataset
 printf '\n-- Preprocessing AML samples...\n'

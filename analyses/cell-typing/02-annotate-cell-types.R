@@ -6,7 +6,7 @@
 # Load libraries
 suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(tidyverse))
-suppressPackageStartupMessages(library(ggplot2))
+#suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(Seurat))
 suppressPackageStartupMessages(library(glmGamPoi))
 suppressPackageStartupMessages(library(celldex))
@@ -151,12 +151,13 @@ if (annot_method == "celldex") {
 }
 
 # Remove cells without cell type annotations
-sample_obj <- subset(x = sample_obj, subset = cell_type != is.na(cell_type))
+#sample_obj <- subset(x = sample_obj, subset = cell_type != is.na(cell_type))
+sample_obj$cell_type <- as.factor(sample_obj$cell_type)
 
 # Plot UMAP with cell types
-pdf(file=file.path(plots_dir, glue::glue("{project}-{annot_method}-annotations-umap.pdf")), 
+cairo_pdf(file=file.path(plots_dir, glue::glue("{project}-{annot_method}-annotations-umap.pdf")), 
     width = 10)
-scCustomize::DimPlot_scCustom(sample_obj, reduction = "umap", 
+scCustomize::DimPlot_scCustom(sample_obj, reduction = "umap",
                               group.by = "cell_type")
 dev.off()
 
