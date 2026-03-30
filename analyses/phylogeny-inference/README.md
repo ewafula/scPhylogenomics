@@ -11,7 +11,7 @@ To identify distinct clonal populations, the module utilizes a unified clusterin
 
 2. Hierarchical Clustering: A hybrid algorithm employing Ward's linkage and weighted non-negative matrix factorization (WNMF) for broad and fine-grained subclonal resolution.
 
-Finally, clonal phylogeny visualizations are generated, overlaying clonal identity onto the topology of the mutation-based tree. This enables a clear interpretation of subclonal evolution and lineage divergence. The analysis process is wrapped in reproducible scripts that provide a cohesive pipeline for reconstructing and visualizing tumor clonal evolutionary dynamics at a single-cell resolution.
+Finally, clonal phylogeny visualizations are generated, overlaying clonal identity onto the topology of the mutation-based tree and optionally performs concordance-based cleaning to remove phylogenetically discordant cells. This enables a clear interpretation of subclonal evolution and lineage divergence. The analysis process is wrapped in reproducible scripts that provide a cohesive pipeline for reconstructing and visualizing tumor clonal evolutionary dynamics at a single-cell resolution.
 
 ## Analysis
 This module provides a reproducible pipeline for single-cell clonal phylogenetic analysis by integrating mutation-based tree inference with deep learning or WNMF-based clonal clustering.
@@ -39,47 +39,47 @@ Illustration of module directory structure using 10x scRNA-Seq dataset from the 
 │   ├── AML
 │   │   ├── LE1.all-cell-types.clusters.hierarchical.png
 │   │   ├── LE1.all-cell-types.clusters.manifold.png
-│   │   ├── LE1.all-cell-types.fasttree.hierarchical.clonal_tree.png
+│   │   ├── LE1.all-cell-types.fasttree.hierarchical.clone_tree.png
 │   │   ├── LE1.all-cell-types.fasttree.hierarchical.lineage_tree.png
 │   │   ├── LE1.all-cell-types.fasttree.hierarchical.ploidy_tree.png
-│   │   ├── LE1.all-cell-types.fasttree.manifold.clonal_tree.png
+│   │   ├── LE1.all-cell-types.fasttree.manifold.clone_tree.png
 │   │   ├── LE1.all-cell-types.fasttree.manifold.lineage_tree.png
 │   │   ├── LE1.all-cell-types.fasttree.manifold.ploidy_tree.png
-│   │   ├── LE1.all-cell-types.iqtree.hierarchical.clonal_tree.png
+│   │   ├── LE1.all-cell-types.iqtree.hierarchical.clone_tree.png
 │   │   ├── LE1.all-cell-types.iqtree.hierarchical.lineage_tree.png
 │   │   ├── LE1.all-cell-types.iqtree.hierarchical.ploidy_tree.png
-│   │   ├── LE1.all-cell-types.iqtree.manifold.clonal_tree.png
+│   │   ├── LE1.all-cell-types.iqtree.manifold.clone_tree.png
 │   │   ├── LE1.all-cell-types.iqtree.manifold.lineage_tree.png
 │   │   ├── LE1.all-cell-types.iqtree.manifold.ploidy_tree.png
 │   │   ├── LE1.all-cell-types.scatter.2d.manifold.png
 │   │   └── LE1.all-cell-types.scatter.3d.manifold.png
-│   ├── SPECTRUM
+│.  ├── SPECTRUM
 │   │   ├── MERGED.Ovarian-cancer.clusters.hierarchical.png
 │   │   ├── MERGED.Ovarian-cancer.clusters.manifold.png
-│   │   ├── MERGED.Ovarian-cancer.fasttree.hierarchical.clonal_tree.png
+│   │   ├── MERGED.Ovarian-cancer.fasttree.hierarchical.clone_tree.png
 │   │   ├── MERGED.Ovarian-cancer.fasttree.hierarchical.sample_tree.png
-│   │   ├── MERGED.Ovarian-cancer.fasttree.manifold.clonal_tree.png
+│   │   ├── MERGED.Ovarian-cancer.fasttree.manifold.clone_tree.png
 │   │   ├── MERGED.Ovarian-cancer.fasttree.manifold.sample_tree.png
-│   │   ├── MERGED.Ovarian-cancer.iqtree.hierarchical.clonal_tree.png
+│   │   ├── MERGED.Ovarian-cancer.iqtree.hierarchical.clone_tree.png
 │   │   ├── MERGED.Ovarian-cancer.iqtree.hierarchical.sample_tree.png
-│   │   ├── MERGED.Ovarian-cancer.iqtree.manifold.clonal_tree.png
+│   │   ├── MERGED.Ovarian-cancer.iqtree.manifold.clone_tree.png
 │   │   ├── MERGED.Ovarian-cancer.iqtree.manifold.sample_tree.png
 │   │   ├── MERGED.Ovarian-cancer.scatter.2d.manifold.png
 │   │   └── MERGED.Ovarian-cancer.scatter.3d.manifold.png
-│   └── TNBC
+│.  └── TNBC
 │       ├── TNBC5.select-cell-types.clusters.hierarchical.png
 │       ├── TNBC5.select-cell-types.clusters.manifold.png
-│       ├── TNBC5.select-cell-types.fasttree.hierarchical.clonal_tree.png
+│       ├── TNBC5.select-cell-types.fasttree.hierarchical.clone_tree.png
 │       ├── TNBC5.select-cell-types.fasttree.hierarchical.lineage_tree.png
-│       ├── TNBC5.select-cell-types.fasttree.manifold.clonal_tree.png
+│       ├── TNBC5.select-cell-types.fasttree.manifold.clone_tree.png
 │       ├── TNBC5.select-cell-types.fasttree.manifold.lineage_tree.png
-│       ├── TNBC5.select-cell-types.iqtree.hierarchical.clonal_tree.png
+│       ├── TNBC5.select-cell-types.iqtree.hierarchical.clone_tree.png
 │       ├── TNBC5.select-cell-types.iqtree.hierarchical.lineage_tree.png
-│       ├── TNBC5.select-cell-types.iqtree.manifold.clonal_tree.png
+│       ├── TNBC5.select-cell-types.iqtree.manifold.clone_tree.png
 │       ├── TNBC5.select-cell-types.iqtree.manifold.lineage_tree.png
 │       ├── TNBC5.select-cell-types.scatter.2d.manifold.png
 │       └── TNBC5.select-cell-types.scatter.3d.manifold.png
-├── results
+└── results
     ├── AML
     │   ├── LE1.all-cell-types.cellSNP.base.vcf.gz
     │   ├── LE1.all-cell-types.cellSNP.samples.tsv.gz
@@ -88,19 +88,15 @@ Illustration of module directory structure using 10x scRNA-Seq dataset from the 
     │   ├── LE1.all-cell-types.cellSNP.tag.OTH.mtx.gz
     │   ├── LE1.all-cell-types.clones.hierarchical.tsv.gz
     │   ├── LE1.all-cell-types.clones.manifold.tsv.gz
-    │   ├── LE1.all-cell-types.fasttree.hierarchical.clonal.treefile
-    │   ├── LE1.all-cell-types.fasttree.hierarchical.lineage.treefile
-    │   ├── LE1.all-cell-types.fasttree.hierarchical.ploidy.treefile
-    │   ├── LE1.all-cell-types.fasttree.manifold.clonal.treefile
-    │   ├── LE1.all-cell-types.fasttree.manifold.lineage.treefile
-    │   ├── LE1.all-cell-types.fasttree.manifold.ploidy.treefile
+    │   ├── LE1.all-cell-types.fasttree.hierarchical.clone.treefile
+    │   ├── LE1.all-cell-types.fasttree.hierarchical.concordant.clones.tsv.gz
+    │   ├── LE1.all-cell-types.fasttree.manifold.clone.treefile
+    │   ├── LE1.all-cell-types.fasttree.manifold.concordant.clones.tsv.gz
     │   ├── LE1.all-cell-types.fasttree.tree
-    │   ├── LE1.all-cell-types.iqtree.hierarchical.clonal.treefile
-    │   ├── LE1.all-cell-types.iqtree.hierarchical.lineage.treefile
-    │   ├── LE1.all-cell-types.iqtree.hierarchical.ploidy.treefile
-    │   ├── LE1.all-cell-types.iqtree.manifold.clonal.treefile
-    │   ├── LE1.all-cell-types.iqtree.manifold.lineage.treefile
-    │   ├── LE1.all-cell-types.iqtree.manifold.ploidy.treefile
+    │   ├── LE1.all-cell-types.iqtree.hierarchical.clone.treefile
+    │   ├── LE1.all-cell-types.iqtree.hierarchical.concordant.clones.tsv.gz
+    │   ├── LE1.all-cell-types.iqtree.manifold.clone.treefile
+    │   ├── LE1.all-cell-types.iqtree.manifold.concordant.clones.tsv.gz
     │   └── LE1.all-cell-types.iqtree.tree
     ├── SPECTRUM
     │   ├── MERGED.Ovarian-cancer.cellSNP.base.vcf.gz
@@ -110,15 +106,15 @@ Illustration of module directory structure using 10x scRNA-Seq dataset from the 
     │   ├── MERGED.Ovarian-cancer.cellSNP.tag.OTH.mtx.gz
     │   ├── MERGED.Ovarian-cancer.clones.hierarchical.tsv.gz
     │   ├── MERGED.Ovarian-cancer.clones.manifold.tsv.gz
-    │   ├── MERGED.Ovarian-cancer.fasttree.hierarchical.clonal.treefile
-    │   ├── MERGED.Ovarian-cancer.fasttree.hierarchical.sample.treefile
-    │   ├── MERGED.Ovarian-cancer.fasttree.manifold.clonal.treefile
-    │   ├── MERGED.Ovarian-cancer.fasttree.manifold.sample.treefile
+    │   ├── MERGED.Ovarian-cancer.fasttree.hierarchical.clone.treefile
+    │   ├── MERGED.Ovarian-cancer.fasttree.hierarchical.concordant.clones.tsv.gz
+    │   ├── MERGED.Ovarian-cancer.fasttree.manifold.clone.treefile
+    │   ├── MERGED.Ovarian-cancer.fasttree.manifold.concordant.clones.tsv.gz
     │   ├── MERGED.Ovarian-cancer.fasttree.tree
-    │   ├── MERGED.Ovarian-cancer.iqtree.hierarchical.clonal.treefile
-    │   ├── MERGED.Ovarian-cancer.iqtree.hierarchical.sample.treefile
-    │   ├── MERGED.Ovarian-cancer.iqtree.manifold.clonal.treefile
-    │   ├── MERGED.Ovarian-cancer.iqtree.manifold.sample.treefile
+    │   ├── MERGED.Ovarian-cancer.iqtree.hierarchical.clone.treefile
+    │   ├── MERGED.Ovarian-cancer.iqtree.hierarchical.concordant.clones.tsv.gz
+    │   ├── MERGED.Ovarian-cancer.iqtree.manifold.clone.treefile
+    │   ├── MERGED.Ovarian-cancer.iqtree.manifold.concordant.clones.tsv.gz
     │   └── MERGED.Ovarian-cancer.iqtree.tree
     └── TNBC
         ├── cell_barcodes_SNPmanifold_clusters.tsv.gz
@@ -129,15 +125,15 @@ Illustration of module directory structure using 10x scRNA-Seq dataset from the 
         ├── TNBC5.select-cell-types.cellSNP.tag.OTH.mtx.gz
         ├── TNBC5.select-cell-types.clones.hierarchical.tsv.gz
         ├── TNBC5.select-cell-types.clones.manifold.tsv.gz
-        ├── TNBC5.select-cell-types.fasttree.hierarchical.clonal.treefile
-        ├── TNBC5.select-cell-types.fasttree.hierarchical.lineage.treefile
-        ├── TNBC5.select-cell-types.fasttree.manifold.clonal.treefile
-        ├── TNBC5.select-cell-types.fasttree.manifold.lineage.treefile
+        ├── TNBC5.select-cell-types.fasttree.hierarchical.clone.treefile
+        ├── TNBC5.select-cell-types.fasttree.hierarchical.concordant.clones.tsv.gz
+        ├── TNBC5.select-cell-types.fasttree.manifold.clone.treefile
+        ├── TNBC5.select-cell-types.fasttree.manifold.concordant.clones.tsv.gz
         ├── TNBC5.select-cell-types.fasttree.tree
-        ├── TNBC5.select-cell-types.iqtree.hierarchical.clonal.treefile
-        ├── TNBC5.select-cell-types.iqtree.hierarchical.lineage.treefile
-        ├── TNBC5.select-cell-types.iqtree.manifold.clonal.treefile
-        ├── TNBC5.select-cell-types.iqtree.manifold.lineage.treefile
+        ├── TNBC5.select-cell-types.iqtree.hierarchical.clone.treefile
+        ├── TNBC5.select-cell-types.iqtree.hierarchical.concordant.clones.tsv.gz
+        ├── TNBC5.select-cell-types.iqtree.manifold.clone.treefile
+        ├── TNBC5.select-cell-types.iqtree.manifold.concordant.clones.tsv.gz
         └── TNBC5.select-cell-types.iqtree.tree
 ``` 
 
@@ -295,42 +291,87 @@ The workflow involves:
 
 The script automatically detects which clustering outputs (`Manifold` or `Hierarchical`) are available in the results directory and generates plots for each.
 
+### `04-infer-clonal-phylogeny.R`
+This script integrates the phylogenetic tree (from 01) with the clonal clusters (from 03). It allows visualizing the evolutionary relationships by overlaying clonal identity onto the tree topology, and optionally performs concordance-based cleaning to remove phylogenetically discordant cells.
+
+The workflow involves:
+1. **Rooting:** Roots the tree on a reference consensus sequence (`--refseq`) or falls back to midpoint rooting if no reference is present.
+2. **Outlier Pruning:** Removes tips with excessively long branches based on a root-to-tip distance percentile threshold (`--percentile_outlier`, default 0.99).
+3. **Cluster Merging:** Optionally merges specified clone IDs into a single combined clone before any downstream analysis (`--merge_clusters`). For example, `--merge_clusters '1:4'` merges clones 1 and 4 into a new clone labeled `14`.
+4. **Concordance Cleaning (`--concordance_clean`):** Removes phylogenetically discordant cells — cells whose position in the tree is inconsistent with their clone assignment from clustering. For each clone, the algorithm identifies the largest internal node whose descendant clade is dominated by that clone (fraction > `--min_clone_frac`, default 0.5). Only cells that fall within their clone's dominant clade are retained. This produces a cleaned tree where each clone forms a distinct, well-supported clade. The `--min_clone_frac` threshold controls the stringency of cleaning:
+   - Higher values (e.g., `0.7`–`0.9`) enforce stricter clade purity, retaining fewer but more
+     phylogenetically coherent cells.
+   - Lower values (e.g., `0.3`–`0.5`) are more permissive, retaining more cells at the cost of some residual discordance.
+   - Values between `0.5` and `0.7` are recommended as a starting point for most datasets.
+   
+   > **Note:** Persistent discordant cells that survive concordance cleaning are not necessarily biological contaminants. They likely reflect genuine phylogenetic ambiguity or classification uncertainty in the clustering step. These cells are retained in the tree but can be excluded from downstream comparative clone expression analyses (e.g., DEG analysis) using the concordant clone assignment table output (see **Outputs** below).
+
+5. **Annotation:** Maps clone IDs (`manifold` or `hierarchical` clustering), sample IDs, or custom lineage annotations to tree tips, controlled by `--annot_type` (`Clone`, `Sample`, or `Lineage`).
+6. **Branch Length Rescaling:** Optionally rescales branch lengths using a log1p transformation (`--rescale`) to improve visualization of trees with highly variable branch lengths.
+7. **Visualization:** Generates rectangular-layout phylogenetic trees with tips colored by clone, sample, or lineage annotation.
+
+**Outputs:**
+- `*.clone.treefile` — Concordance-cleaned phylogenetic tree in Newick format, saved to thenresults directory. Used as the baseline tree for subsequent `--annot_type Sample` and
+  `--annot_type Lineage` runs.
+- `*.concordant.clones.tsv` — Tab-separated table of `cell_id` and `clone_id` for all cells retained in the concordance-cleaned tree. This is the primary input for downstream single cell analyses such as differential gene expression (DEG) analysis comparing clones.
+- `*_tree.png` — Phylogenetic tree plot colored by clone, sample, or lineage annotation, saved to the plots directory.
+
 
 ###### Example usage:
 ```
-Rscript 04-infer-clonal-phylogeny.R \
+Rscript --vanilla 04-infer-clonal-phylogeny.R \
   --project AML \
+  --tree_method fasttree \
+  --cluster_method manifold \
   --refseq \
+  --rescale \
   --annot_type Clone \
-  --rescale
+  --concordance_clean \
+  --min_clone_frac 0.5 
 ```
 
 ###### Argument descriptions:
 ```
 Usage: 04-infer-clonal-phylogeny.R [options]
 
+
 Options:
-  --project=CHARACTER
-    A valid scPhylogenomics project name
+	-p CHARACTER, --project=CHARACTER
+		A valid scPhylogenomics project name
 
-  --refseq
-    Whether to include reference sequence [default: FALSE]
+	--tree_method=CHARACTER
+		Phylogeny method to process (iqtree or fasttree). If NULL, processes all.
 
-  --rescale
-    Whether to rescale branch lengths to compress extremes [default: FALSE]
+	--cluster_method=CHARACTER
+		Clustering method to process (manifold or hierarchical). If NULL, processes all.
 
-  --percentile_outlier=PERCENTILE
-    Determine likely outlier super long branches to exclude [default: 0.99]
+	--refseq
+		Include reference sequence [default: FALSE]
 
-  --annot_type=CHARACTER
-    Clone metadata annotation - [default: Clone]
-    - Available choices: Clone, Lineage, and Sample
-    - Sample choice only works with merged samples alignment
-    
-  --cell_category=CHARACTER
-    Optional cell annotation categories file (if not provided, skipped)
+	--rescale
+		Rescale branch lengths (log1p) [default: FALSE]
 
-  -h, --help
-    Show this help message and exit
+	--percentile_outlier=PERCENTILE_OUTLIER
+		Percentile for long-branch removal [default: 0.99]
+
+	--annot_type=ANNOT_TYPE
+		Annotation type: Clone, Lineage, or Sample [default: Clone]
+
+	--cell_category=CHARACTER
+		Optional cell annotation categories file
+
+	--concordance_clean
+		Perform tree-clone concordance cleaning [default: FALSE]
+
+	--min_clone_frac=MIN_CLONE_FRAC
+		Minimum clone fraction for a node to be considered dominant [default: 0.5]
+
+	--merge_clusters=ID_LIST
+		Specify cluster IDs to be merged into groups. 
+                      Format: '1:4,5:3:7' (merges 1 & 4; and 5, 3, & 7). 
+                      New IDs are named by concatenating the original IDs.
+                      [default: NULL]
+
+	-h, --help
+		Show this help message and exit
 ```
-
