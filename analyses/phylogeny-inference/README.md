@@ -3,7 +3,7 @@
 ## Purpose
 This module conducts single-cell clonal phylogenetic analysis by integrating mutation-based phylogenetic inference with advanced clonal population clustering. The goal is to elucidate the evolutionary relationships among cells within tumor samples.
 
-The analysis begins with construction of phylogenetic trees from SNP-based multiple sequence alignments, supporting both [FastTree](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0009490) and [IQ-TREE](https://ecoevorxiv.org/repository/view/8916/) for robust model selection and tree inference.
+The analysis begins with the construction of phylogenetic trees from SNP-based multiple sequence alignments, supporting both [FastTree](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0009490) and [IQ-TREE](https://ecoevorxiv.org/repository/view/8916/) for robust model selection and tree inference.
 
 To identify distinct clonal populations, the module utilizes a unified clustering interface supporting two powerful approaches:
 
@@ -280,18 +280,6 @@ options:
 ```
 
 ### `04-infer-clonal-phylogeny.R`
-This script integrates the phylogenetic tree (from 01) with the clonal clusters (from 03). It visualizes the evolutionary relationships by overlaying clonal identity onto the tree topology.
-
-The workflow involves:
-1. **Rooting:** Roots the tree via a reference sequence or midpoint rooting.
-2. **Pruning:** Removes outlier tips with excessively long branches (`--percentile_outlier`).
-3. **Annotation:** Maps clonal IDs (`Manifold` or `Hierarchical`) or sample IDs to the tree tips.
-
-4, **Visualization:** Generate rectangular-layout trees with tips colored by clone/sample and clades labeled accordingly.
-
-The script automatically detects which clustering outputs (`Manifold` or `Hierarchical`) are available in the results directory and generates plots for each.
-
-### `04-infer-clonal-phylogeny.R`
 This script integrates the phylogenetic tree (from 01) with the clonal clusters (from 03). It allows visualizing the evolutionary relationships by overlaying clonal identity onto the tree topology, and optionally performs concordance-based cleaning to remove phylogenetically discordant cells.
 
 The workflow involves:
@@ -311,9 +299,9 @@ The workflow involves:
 7. **Visualization:** Generates rectangular-layout phylogenetic trees with tips colored by clone, sample, or lineage annotation.
 
 **Outputs:**
-- `*.clone.treefile` — Concordance-cleaned phylogenetic tree in Newick format, saved to thenresults directory. Used as the baseline tree for subsequent `--annot_type Sample` and
+- `*.clone.treefile` — Concordance-cleaned phylogenetic tree in Newick format, saved to the results directory. Used as the baseline tree for subsequent `--annot_type Sample` and
   `--annot_type Lineage` runs.
-- `*.concordant.clones.tsv` — Tab-separated table of `cell_id` and `clone_id` for all cells retained in the concordance-cleaned tree. This is the primary input for downstream single cell analyses such as differential gene expression (DEG) analysis comparing clones.
+- `*.concordant.clones.tsv` — Tab-separated table of `cell_id` and `clone_id` for all cells retained in the concordance-cleaned tree. This is the primary input for downstream single-cell analyses, such as differential gene expression (DEG) analysis comparing clones.
 - `*_tree.png` — Phylogenetic tree plot colored by clone, sample, or lineage annotation, saved to the plots directory.
 
 
