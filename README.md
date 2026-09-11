@@ -201,7 +201,7 @@ Here are a few examples of module analyses:
 cd analyses/data-preprocessing/
 
 singularity exec \
-  --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
+  --bind /home/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/data-preprocessing \
   ../../images/scphylogenomics.sif \
   bash run-data-preprocessing.sh
@@ -213,14 +213,14 @@ singularity exec \
 cd analyses/cell-typing/
 
 singularity exec \
-  --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
+  --bind /home/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/cell-typing \
   ../../images/scphylogenomics.sif \
   Rscript --vanilla 01-consolidate-samples.R \
     --project AML --integrate FALSE --normalize_method LogNormalize --components 20 --resolution 1.4
 
 singularity exec \
-  --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
+  --bind /home/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/cell-typing \
   ../../images/scphylogenomics.sif \
   Rscript --vanilla 02-annotate-cell-types.R \
@@ -233,7 +233,7 @@ singularity exec \
 cd analyses/ploidy-inference/
 
 singularity exec \
-  --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
+  --bind /home/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/ploidy-inference \
   ../../images/scphylogenomics.sif \
   Rscript --vanilla 01-classify-cell-ploidy.R \
@@ -246,19 +246,19 @@ singularity exec \
 cd analyses/snv-calling/
 
 singularity exec \
-  --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
+  --bind /home/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/snv-calling \
   ../../images/scphylogenomics.sif \
   Rscript --vanilla 01-get-cell-type-barcodes.R --project AML --cell_types all
   
 singularity exec \
-  --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
+  --bind /home/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/snv-calling \
   ../../images/scphylogenomics.sif \
   python 02-snv-calling.py --project AML --num_threads 16
   
  singularity exec \
-  --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
+  --bind /home/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/snv-calling \
   ../../images/scphylogenomics.sif \
   python 03-generate-snp-msa.py --project AML --min_cells_per_snp 0.015 --min_snps_per_cell 0.05
@@ -270,25 +270,25 @@ singularity exec \
 cd analyses/phylogeny-inference/
 
 singularity exec \
-  --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
+  --bind /home/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/phylogeny-inference \
   ../../images/scphylogenomics.sif \
   python3 01-phylogeny-inference.py --project AML --sample LE1 -cell_type all-cell-types --method iqtree --threads 16
   
 singularity exec \
-  --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
+  --bind /home/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/phylogeny-inference \
   ../../images/scphylogenomics.sif \
   python3 02-filter-variants.py --project AML --sample LE1 --cell_type all-cell-types
   
 singularity exec \
-  --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
+  --bind /home/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/phylogeny-inference \
   ../../images/scphylogenomics.sif \
   python3 03-snp-clustering.py --project AML --sample LE1 --cell_type all-cell-types --method manifold -max_cluster 3 --final  
   
 singularity exec \
-  --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
+  --bind /home/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   --pwd /home/rstudio/scPhylogenomics/analyses/phylogeny-inference \
   ../../images/scphylogenomics.sif \
   Rscript 04-infer-clonal-phylogeny.R --project AML -refseq --rescale --percentile_outlier 0.99 --annot_type Clone
@@ -300,7 +300,7 @@ For development, debugging, or exploratory analysis, users may wish to open an i
 
 ```bash
 singularity shell \
-  --bind /mnt/isilon/dbhi_bfx/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
+  --bind /home/wafulae/scPhylogenomics:/home/rstudio/scPhylogenomics \
   images/scphylogenomics.sif
 ```
 
